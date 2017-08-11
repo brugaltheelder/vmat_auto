@@ -8,17 +8,28 @@ class patient_data(object):
     def __init__(self, input_dict):
         self.f = h5py.File(input_dict['cwd'] + input_dict['filename'], 'r')
         self.input_dict = input_dict.copy()
-        self.build_structure()
+        self.structures = []
+        self.build_structures()
 
-    def build_structure(self):
+
+    def build_structures(self):
         # Create list of real structure names
         self.structure_names = []
-        c = self.f['patient/StructureNames']
-        for i in range(c.size):
-            self.structure_names.append(''.join(chr(j) for j in self.f[c[i][0]][:]))
+        structure_sizes = []
+        patient_structure_names = self.f['patient/StructureNames']
+        patient_structure_sizes = self.f['patient/SampledVoxels']
+        for i in range(patient_structure_names.size):
+            self.structure_names.append(''.join(chr(j) for j in self.f[patient_structure_names[i][0]][:]))
+            structure_sizes.append(int(self.f[patient_structure_names[i][0]].shape[0]))
 
         #gather init data for struct
-        for i in range(len(self.structure_names)):
+        #Get all volume/structure/data names
+        data_matrix = self.f['data/matrix']
+        for s in range(data_matrix['A'].size):
+
+            A_ref = data_matrix['A'][s]
+
+            self.structures.append(structure())
             self.structure_names.append(structure(self.structure_names[i], self.f, self.input_dict, i))
 
 
@@ -28,7 +39,7 @@ class structure(object):
         self.name = name
 
         # Access Matrix subgroup in patient data (Dose to points, structure name, etc.)
-        f['data/matrix'].keys()
+        # f['data/matrix'].keys()
 
         # Determine corresponding number of voxels for structure
         c = f['patient/SampledVoxels']

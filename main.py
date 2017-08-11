@@ -1,4 +1,4 @@
-from data_class import *
+from pyrt.data import *
 
 
 # Find work directory
