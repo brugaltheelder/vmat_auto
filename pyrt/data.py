@@ -9,8 +9,8 @@ class patient_data(object):
         self.input_dict = input_dict.copy()
         self.f = h5py.File(self.input_dict['cwd'] + self.input_dict['filename'], 'r')
 
-        # todo read in num beamlets and cumulative beamlet thing
-        self.num_beamlets = 1972
+        #read in num beamlets and cumulative beamlet thing
+        self.num_beamlets = int(np.asarray(self.f['patient/Beams/ElementIndex']).sum())
 
         self.structures = []
         self.build_structures()
