@@ -42,6 +42,7 @@ class imrt_fmo(model):
         super(self.__class__,self).__init__(input_dict,modality=modality)
 
 
+
     def generate_optimization_variables(self):
         # variables
         self.beamlet_intensities = np.zeros(self.data.num_beamlets)
