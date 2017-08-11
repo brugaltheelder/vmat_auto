@@ -8,6 +8,9 @@ class patient_data(object):
     def __init__(self, input_dict):
         self.f = h5py.File(input_dict['cwd'] + input_dict['filename'], 'r')
         self.input_dict = input_dict.copy()
+        # read in num beamlets and cumulative beamlet thing
+        self.num_beamlets = 1972
+
         self.structures = []
         self.build_structures()
 
@@ -15,86 +18,62 @@ class patient_data(object):
     def build_structures(self):
         # Create list of real structure names
         self.structure_names = []
-        structure_sizes = []
+        structure_sizes = {}
         patient_structure_names = self.f['patient/StructureNames']
         patient_structure_sizes = self.f['patient/SampledVoxels']
         for i in range(patient_structure_names.size):
             self.structure_names.append(''.join(chr(j) for j in self.f[patient_structure_names[i][0]][:]))
-            structure_sizes.append(int(self.f[patient_structure_names[i][0]].shape[0]))
+            structure_sizes[self.structure_names[-1]] = int(self.f[patient_structure_sizes[i][0]].shape[0])
 
         #gather init data for struct
         #Get all volume/structure/data names
         data_matrix = self.f['data/matrix']
         for s in range(data_matrix['A'].size):
 
-            A_ref = data_matrix['A'][s]
+            name =  ''.join(chr(j) for j in self.f[data_matrix['Name'][s][0]][:])
 
-            self.structures.append(structure())
-            self.structure_names.append(structure(self.structure_names[i], self.f, self.input_dict, i))
+            if name in self.structure_names:
+                # set prescription
+                Rx,is_target = 0.,False
+
+                if name in self.input_dict['Rx'].keys():
+                    Rx = self.input_dict['Rx'][name]
+                    is_target = True
+
+
+
+                A_ref = data_matrix['A'][s]
+
+                self.structures.append(structure(name = name,A_ref=A_ref,f=self.f,Rx=Rx,num_vox=structure_sizes[name], num_beamlets = self.num_beamlets,is_target=is_target))
+
 
 
 
 class structure(object):
-    def __init__(self, name, f, input_dict, i):
+    def __init__(self, name, A_ref, f, Rx, num_vox, num_beamlets, is_target=False):
         self.name = name
+        self.rx = Rx
+        self.num_vox = num_vox
+        self.Dij = None
+        self.num_beamlets = num_beamlets
+        self.is_target = is_target
+        self.import_dose(A_ref,f)
 
-        # Access Matrix subgroup in patient data (Dose to points, structure name, etc.)
-        # f['data/matrix'].keys()
+    def import_dose(self,A_ref,f):
+        if np.asarray(f[A_ref[0]]).shape==(3,):
+            print 'importing {} Dij as sparse matrix'.format(self.name)
+            indices = np.asarray(f[A_ref[0]]['jc'])
+            indptr = np.asarray(f[A_ref[0]]['ir'])
+            data = np.asarray(f[A_ref[0]]['data'])
+            if self.num_beamlets != indices.shape[0]-1:
+                print 'ERROR IN DIMENSION MISMATCH'*40
 
-        # Determine corresponding number of voxels for structure
-        c = f['patient/SampledVoxels']
-        self.structure_size = f[c[i][0]].shape[0]
-        # print name,self.structure_size
-
-
-
-
-
-
-        # patient_structure_size = {}
-        # for i in range(c.size):
-        #     patient_structure_size[structure_names_real[i]] = f[c[i][0]].shape[0]
-        # # print patient_structure_size
+            self.Dij = sps.csr_matrix((data,indptr,indices),shape=(self.num_beamlets,self.num_vox))
+        else:
+            print 'importing {} Dij as dense matrix, converting to sparse...'.format(self.name)
+            self.Dij = sps.csr_matrix(np.asarray(f[A_ref[0]]))
 
 
-        # # get ref to data/matrix
-        # b = f['data/matrix']
-        #
-        # # read in names
-        # structure_names = []
-        # for i in range(b['Name'].size):
-        #     structure_names.append(''.join(chr(j) for j in f[b['Name'][i][0]][:]))
-        # # print structure_names
-        # print '-' * 40
-        #
-        # # read in A's
-        # A_mat = {}
-        # for i in range(b['A'].size):
-        #     if structure_names[i] not in structure_names_real:
-        #         continue
-        #     else:
-        #         print i,
-        #         # Find sparse matrices/structures:
-        #         if np.asarray(f[b['A'][i][0]]).shape == (3,):
-        #             print 'SPARSE'
-        #             print structure_names[i]
-        #             indices = np.asarray(f[b['A'][i][0]]['jc'])
-        #             indptr = np.asarray(f[b['A'][i][0]]['ir'])
-        #             data_values = np.asarray(f[b['A'][i][0]]['data'])
-        #             print 'now testing structure {}'.format(structure_names[i])
-        #             print 'this should have a shape of {} by {}'.format(patient_structure_size[structure_names[i]],
-        #                                                                 indices.shape[0] - 1)
-        #             # csr_matrix((data, indices, indptr), [shape=(M, N)])
-        #             A_mat[structure_names[i]] = sps.csr_matrix((data_values, indptr, indices), shape=(
-        #             indices.shape[0] - 1, patient_structure_size[structure_names[i]]))
-        #             #           print A_mat[structure_names[i]].size, A_mat[structure_names[i]].shape
-        #             np.setdiff1d(np.arange(1, 11788), np.unique(indptr)).shape
-        #
-        #         else:
-        #             A_mat[structure_names[i]] = sps.csr_matrix(np.asarray(f[b['A'][i][0]]))
-        #
-        # print ''
-        # print '-' * 40
 
 #
 # #Access Misc subgroup in patient data
