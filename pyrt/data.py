@@ -6,14 +6,14 @@ import h5py
 
 class patient_data(object):
     def __init__(self, input_dict):
-        self.f = h5py.File(input_dict['cwd'] + input_dict['filename'], 'r')
         self.input_dict = input_dict.copy()
-        # read in num beamlets and cumulative beamlet thing
+        self.f = h5py.File(self.input_dict['cwd'] + self.input_dict['filename'], 'r')
+
+        # todo read in num beamlets and cumulative beamlet thing
         self.num_beamlets = 1972
 
         self.structures = []
         self.build_structures()
-
 
     def build_structures(self):
         # Create list of real structure names
@@ -25,28 +25,25 @@ class patient_data(object):
             self.structure_names.append(''.join(chr(j) for j in self.f[patient_structure_names[i][0]][:]))
             structure_sizes[self.structure_names[-1]] = int(self.f[patient_structure_sizes[i][0]].shape[0])
 
-        #gather init data for struct
-        #Get all volume/structure/data names
+        # gather init data for struct
+        # Get all volume/structure/data names
         data_matrix = self.f['data/matrix']
         for s in range(data_matrix['A'].size):
 
-            name =  ''.join(chr(j) for j in self.f[data_matrix['Name'][s][0]][:])
+            name = ''.join(chr(j) for j in self.f[data_matrix['Name'][s][0]][:])
 
             if name in self.structure_names:
-                # set prescription
-                Rx,is_target = 0.,False
+                # set prescription, is_target
+                Rx, is_target = 0., False
 
                 if name in self.input_dict['Rx'].keys():
                     Rx = self.input_dict['Rx'][name]
                     is_target = True
 
-
-
                 A_ref = data_matrix['A'][s]
 
-                self.structures.append(structure(name = name,A_ref=A_ref,f=self.f,Rx=Rx,num_vox=structure_sizes[name], num_beamlets = self.num_beamlets,is_target=is_target))
-
-
+                self.structures.append(structure(name=name, A_ref=A_ref, f=self.f, Rx=Rx, num_vox=structure_sizes[name],
+                                                 num_beamlets=self.num_beamlets, is_target=is_target))
 
 
 class structure(object):
@@ -57,23 +54,22 @@ class structure(object):
         self.Dij = None
         self.num_beamlets = num_beamlets
         self.is_target = is_target
-        self.import_dose(A_ref,f)
+        self.import_dose(A_ref, f)
 
-    def import_dose(self,A_ref,f):
-        if np.asarray(f[A_ref[0]]).shape==(3,):
+    def import_dose(self, A_ref, f):
+        if np.asarray(f[A_ref[0]]).shape == (3,):
             print 'importing {} Dij as sparse matrix'.format(self.name)
             indices = np.asarray(f[A_ref[0]]['jc'])
             indptr = np.asarray(f[A_ref[0]]['ir'])
             data = np.asarray(f[A_ref[0]]['data'])
-            if self.num_beamlets != indices.shape[0]-1:
-                print 'ERROR IN DIMENSION MISMATCH'*40
+            # sanity check
+            if self.num_beamlets != indices.size - 1:
+                print 'ERROR IN DIMENSION MISMATCH' * 40
 
-            self.Dij = sps.csr_matrix((data,indptr,indices),shape=(self.num_beamlets,self.num_vox))
+            self.Dij = sps.csr_matrix((data, indptr, indices), shape=(self.num_beamlets, self.num_vox))
         else:
             print 'importing {} Dij as dense matrix, converting to sparse...'.format(self.name)
             self.Dij = sps.csr_matrix(np.asarray(f[A_ref[0]]))
-
-
 
 #
 # #Access Misc subgroup in patient data
