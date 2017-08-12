@@ -56,10 +56,16 @@ class model(object):
             dvh = 1. - np.cumsum(hist) / float(self.data.structures[s].num_vox)
             plt.plot(bins[:-1], dvh, label=self.data.structures[s].name, linewidth=2)
         lgd = plt.legend(fancybox=True, framealpha=0.5, bbox_to_anchor=(1.05, 1), loc=2)
+
         plt.title('DVH for run tag: {}'.format(run_tag))
 
         plt.xlabel('Dose')
         plt.ylabel('Fractional Volume')
+
+        plt.gca().set_xlim(left=0.)
+        plt.gca().set_ylim(bottom=0., top=1.)
+
+
         if len(saveName) > 1 or saveDVH:
 
             plt.savefig(self.data.input_dict['figure_directory'] + 'dvh_' + saveName + '_' + run_label + '.png',
