@@ -14,3 +14,8 @@ def print_structure_info(data):
     for s in data.structures:
         print s.name,s.rx, s.num_vox, s.num_beamlets, s.is_target, s.Dij.shape
         print '-'*20
+
+
+
+def plot_fluence_map(fluence,field):
+    pass

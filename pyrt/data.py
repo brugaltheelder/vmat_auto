@@ -9,8 +9,16 @@ class patient_data(object):
         self.input_dict = input_dict.copy()
         self.f = h5py.File(self.input_dict['cwd'] + self.input_dict['filename'], 'r')
 
-        #read in num beamlets and cumulative beamlet thing
-        self.num_beamlets = int(np.asarray(self.f['patient/Beams/ElementIndex']).sum())
+        # read in num beamlets and cumulative beamlet thing
+        self.num_control_points = int(np.asarray(self.f['patient/Beams/Num']))
+        self.beamlets_per_cp = np.asarray(self.f['patient/Beams/ElementIndex']).flatten()
+        self.cumulative_beamlets_per_cp = np.array([0] + np.cumsum(self.beamlets_per_cp).tolist())
+        self.num_beamlets = int(self.beamlets_per_cp.sum())
+
+        # todo josh read in spatial beamlet information
+
+        print self.beamlets_per_cp
+        print self.cumulative_beamlets_per_cp
 
         self.structures = []
         self.build_structures()
@@ -46,6 +54,8 @@ class patient_data(object):
 
                 self.structures.append(structure(name=name,index=structure_index[name], A_ref=A_ref, f=self.f, Rx=Rx, num_vox=structure_sizes[name],
                                                  num_beamlets=self.num_beamlets, is_target=is_target))
+
+
 
 
 class structure(object):
