@@ -31,14 +31,53 @@ class vmat_mip(model_base):
         # generate optimization metadata you need, can break into functions like you did before (building vars, dose vars, aper vars, etc)
         # you have self.data as the data object
 
+        # self.generate_dose_variables()
+        # self.generate_aper_variables()
+        # self.generate_thresholds()
+        # self.generate_objective_variables()
+        # self.generate_one_aperture()
+        # self.generate_network()
+        # self.generate_bilinear_constraints()
+        # self.generate_dose_constraints()
+        # self.generate_objective_constraints()
+        # self.generate_objective()
 
         pass
 
+    def generate_dose_variables(self):
+        self.dose_var = [self.m.addVars(self.data.structures[s].num_vox, name='z_{}_'.format(s)) for s in range(len(self.data.structures))]
+        self.m.update()
 
+    def generate_thresholds(self):
+        self.thresholds = [[self.data.structures[s].rx for v in range(self.data.structures[s].num_vox)] for s in range(len(self.data.structures))]
+        self.m.update()
+
+    def generate_objective_variables(self):
+        self.obj_var = [self.m.addVars(self.data.structures[s].num_vox, name='h_{}_'.format(s)) for s in range(len(self.data.structures))]
+        self.m.update()
 
     def build_dose_constraints(self):
+        # for s in range(len(self.data.structures)):
+        #     for v in range(self.data.structures[s].num_vox):
+        #         lin1 = grb.LinExpr()
+        #         for cp in range(model.data.num_control_points):
+        #         for aper_index in range(self.data.apertures_per_beam_dict[beam_index].num_apers):
+        #             lin1 += self.data.apertures_per_beam_dict[beam_index].Dbaj[aper_index, voxel] * self.data.apertures_per_beam_dict[beam_index].intensity_variables[aper_index]
+        #     self.m.addConstr(self.dose_var[voxel], grb.GRB.EQUAL, lin1, name='Dose_Constraint_{}'.format(voxel))
+        #
+        # self.m.update()
         pass
 
+    # h >= z - Rx, h >=0, and h >= Rx -z if tumor
+    def generate_objective_constraints(self):
+        for s in range(len(self.data.structures)):
+            for v in range(self.data.structures[s].num_vox):
+                self.m.addConstr(self.obj_var[s][v], grb.GRB.GREATER_EQUAL, 0.)
+                self.m.addConstr(self.obj_var[s][v], grb.GRB.GREATER_EQUAL, self.dose_var[s][v] - self.thresholds[s][v])
+                if struct_obj.is_target:
+                    self.m.addConstr(self.obj_var[s][v], grb.GRB.GREATER_EQUAL, self.thresholds[s][v] - self.dose_var[s][v])
+
+        self.m.update()
 
     def optimize(self): # probably need some inputs/default params like in IMRT one
 
