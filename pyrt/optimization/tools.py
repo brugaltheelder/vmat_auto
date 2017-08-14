@@ -35,5 +35,7 @@ class aperture(object):
             self.Dkj_per_structure[s] = np.asarray(data.structures[s].Dij[np.array(beamlet_indices)].sum(axis=0))
 
 
+
+
     def calc_dose(self,x=None):
         pass
