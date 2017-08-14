@@ -16,7 +16,6 @@ class patient_data(object):
         self.cumulative_beamlets_per_cp = np.array([0] + np.cumsum(self.beamlets_per_cp).tolist())
         self.num_beamlets = int(self.beamlets_per_cp.sum())
 
-        # todo josh read in spatial beamlet information
 
         print self.beamlets_per_cp
         print self.cumulative_beamlets_per_cp
