@@ -3,6 +3,24 @@ import numpy as np
 from pyrt.data.tools import control_point
 from pyrt.data.data_trots import patient_data
 
+def save_weights_from_input_dict(model, target_weights_label='target_weights', oar_weights_label='oar_weights'):
+    # weights
+    model.weights_per_structure = [np.ones(s.num_vox) for s in model.data.structures]
+    for s_ind in range(len(model.data.structures)):
+        if model.data.structures[s_ind].is_target:
+            if model.data.structures[s_ind].name in model.model_params[target_weights_label].keys():
+                model.weights_per_structure[s_ind] *= model.model_params[target_weights_label][
+                    model.data.structures[s_ind].name]
+            else:
+                model.weights_per_structure[s_ind] *= model.model_params[target_weights_label]['default']
+        else:
+            if model.data.structures[s_ind].name in model.model_params[oar_weights_label].keys():
+                model.weights_per_structure[s_ind] *= model.model_params[oar_weights_label][
+                    model.data.structures[s_ind].name]
+            else:
+                model.weights_per_structure[s_ind] *= model.model_params[oar_weights_label]['default']
+
+
 class aperture(object):
     def __init__(self, data, CP, aper_left_pos = [], aper_right_pos = [], aper_intensity = 1. , set_open_aper=False):
         ### aper shape details
