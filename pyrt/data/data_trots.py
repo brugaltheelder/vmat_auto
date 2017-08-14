@@ -24,11 +24,18 @@ class patient_data(object):
         self.structures = []
         self.build_structures()
 
+        self.control_points = []
         self.generate_control_point_data()
 
 
     def generate_control_point_data(self):
-        pass
+        # Get min_max bounds
+        min_row, max_row = find_min_max_row(self)
+        for c in range(self.num_control_points):
+            # build metadata read in field
+            field = None
+            self.control_points.append(control_point(c,field, min_row,max_row,self.cumulative_beamlets_per_cp[c],self.beamlets_per_cp[c]))
+
 
 
     def build_structures(self):
