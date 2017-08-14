@@ -23,7 +23,7 @@ class model_base(object):
     def read_in_data(self,input_dict):
         self.data = patient_data(input_dict)
 
-    def generate_optimization_variables(self):
+    def build_model(self):
         print 'Implement in child classes'
         pass
 

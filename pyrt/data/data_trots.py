@@ -33,7 +33,8 @@ class patient_data(object):
         min_row, max_row = find_min_max_row(self)
         for c in range(self.num_control_points):
             # build metadata read in field
-            field = None
+            b = self.f['patient/Beams/BeamConfig']
+            field = np.asarray(self.f[b['Field'][c][0]])
             self.control_points.append(control_point(c,field, min_row,max_row,self.cumulative_beamlets_per_cp[c],self.beamlets_per_cp[c]))
 
 

@@ -14,11 +14,11 @@ class imrt_fmo(model_base):
         super(self.__class__,self).__init__(input_dict,modality=modality)
         self.run_title = run_title
         self.model_params = input_dict['model_params'].copy()
-        self.generate_optimization_variables()
+        self.build_model()
 
 
 
-    def generate_optimization_variables(self, target_weights_label='target_weights', oar_weights_label='oar_weights'):
+    def build_model(self, target_weights_label='target_weights', oar_weights_label='oar_weights'):
         # variables
         self.beamlet_intensities = np.zeros(self.data.num_beamlets)
         self.grad = np.zeros(self.data.num_beamlets)

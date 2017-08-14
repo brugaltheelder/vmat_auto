@@ -7,6 +7,7 @@ import h5py
 
 
 def find_min_max_row(data):
+    b = data.f['patient/Beams/BeamConfig']
     min_row = np.asarray(data.f[b['Field'][0][0]]).shape[1]
     max_row = 0.
     for cp in range(data.num_control_points):
@@ -55,26 +56,28 @@ class control_point(object):
         self.cp_number = cp_number
         self.min_row = min_row
         self.max_row = max_row
+        self.num_rows = max_row-min_row
         self.number_beamlets = number_beamlets
         self.initial_beamlet_index = initial_beamlet_index
         self.final_beamlet_index = initial_beamlet_index+number_beamlets
+        self.field = field.copy()
 
         self.build_leaf_metadata(field)
 
         # check if beamlet row sum == number_beamlets
-        if np.array(num_beamlets_in_row).sum() != self.number_beamlets:
+        if np.array(self.num_beamlets_in_row).sum() != self.number_beamlets:
             print "ERROR: NOT ALL BEAMLETS COUNTED"
 
     def build_leaf_metadata(self,field):
-        left_leaf_position = []
-        left_leaf_index = []
-        num_beamlets_in_row = []
-        row_array = range(self.min_row, self.max_row)
+        self.left_leaf_position = []
+        self.left_leaf_index = []
+        self.num_beamlets_in_row = []
+        self.row_array = range(self.min_row, self.max_row)
 
-        for row in row_array:
-            left_leaf_position.append(int(np.where(field[row][:] > 0)[0][0]))
-            left_leaf_index.append(field[row][np.where(field[row][:] > 0)[0][0]])
-            num_beamlets_in_row.append(int(np.argmax(field[row][:])) - int(np.where(field[row][:] > 0)[0][0]) + 1)
+        for row in self.row_array:
+            self.left_leaf_position.append(int(np.where(field[row][:] > 0)[0][0]))
+            self.left_leaf_index.append(field[row][np.where(field[row][:] > 0)[0][0]])
+            self.num_beamlets_in_row.append(int(np.argmax(field[row][:])) - int(np.where(field[row][:] > 0)[0][0]) + 1)
 
 
 
