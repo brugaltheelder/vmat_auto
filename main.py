@@ -1,4 +1,4 @@
-from pyrt.data import *
+from pyrt.data.data_trots import *
 
 
 # Find work directory

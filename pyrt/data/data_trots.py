@@ -58,6 +58,12 @@ class patient_data(object):
 
 
 
+
+
+
+
+
+
 class structure(object):
     def __init__(self, name,index,  A_ref, f, Rx, num_vox, num_beamlets, is_target=False):
         self.name = name
