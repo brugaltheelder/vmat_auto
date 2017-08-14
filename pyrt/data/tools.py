@@ -38,7 +38,7 @@ class structure(object):
         if np.asarray(f[A_ref[0]]).shape == (3,):
             print 'importing {} Dij as sparse matrix'.format(self.name)
             indices = np.asarray(f[A_ref[0]]['jc'])
-            indptr = np.asarray(f[A_ref[0]]['ir'])
+            indptr = np.asarray(f[A_ref[0]]['ir']) - 1
             data = np.asarray(f[A_ref[0]]['data'])
             # sanity check
             if self.num_beamlets != indices.size - 1:
@@ -76,7 +76,7 @@ class control_point(object):
 
         for row in self.row_array:
             self.left_leaf_position.append(int(np.where(field[row][:] > 0)[0][0]))
-            self.left_leaf_index.append(field[row][np.where(field[row][:] > 0)[0][0]])
+            self.left_leaf_index.append(field[row][np.where(field[row][:] > 0)[0][0]] - 1)
             self.width_per_row.append(int(np.argmax(field[row][:])) - int(np.where(field[row][:] > 0)[0][0]) + 1)
 
 
