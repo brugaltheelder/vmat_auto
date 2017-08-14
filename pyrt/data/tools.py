@@ -65,19 +65,19 @@ class control_point(object):
         self.build_leaf_metadata(field)
 
         # check if beamlet row sum == number_beamlets
-        if np.array(self.num_beamlets_in_row).sum() != self.number_beamlets:
+        if np.array(self.width_per_row).sum() != self.number_beamlets:
             print "ERROR: NOT ALL BEAMLETS COUNTED"
 
     def build_leaf_metadata(self,field):
         self.left_leaf_position = []
         self.left_leaf_index = []
-        self.num_beamlets_in_row = []
+        self.width_per_row = []
         self.row_array = range(self.min_row, self.max_row)
 
         for row in self.row_array:
             self.left_leaf_position.append(int(np.where(field[row][:] > 0)[0][0]))
             self.left_leaf_index.append(field[row][np.where(field[row][:] > 0)[0][0]])
-            self.num_beamlets_in_row.append(int(np.argmax(field[row][:])) - int(np.where(field[row][:] > 0)[0][0]) + 1)
+            self.width_per_row.append(int(np.argmax(field[row][:])) - int(np.where(field[row][:] > 0)[0][0]) + 1)
 
 
 
