@@ -2,6 +2,7 @@ import numpy as np
 import scipy.sparse as sps
 import os
 import h5py
+from pyrt.data.tools import *
 
 
 class patient_data(object):
@@ -22,6 +23,13 @@ class patient_data(object):
 
         self.structures = []
         self.build_structures()
+
+        self.generate_control_point_data()
+
+
+    def generate_control_point_data(self):
+        pass
+
 
     def build_structures(self):
         # Create list of real structure names
@@ -62,30 +70,3 @@ class patient_data(object):
 
 
 
-
-
-class structure(object):
-    def __init__(self, name,index,  A_ref, f, Rx, num_vox, num_beamlets, is_target=False):
-        self.name = name
-        self.index = index
-        self.rx = Rx
-        self.num_vox = num_vox
-        self.Dij = None
-        self.num_beamlets = num_beamlets
-        self.is_target = is_target
-        self.import_dose(A_ref, f)
-
-    def import_dose(self, A_ref, f):
-        if np.asarray(f[A_ref[0]]).shape == (3,):
-            print 'importing {} Dij as sparse matrix'.format(self.name)
-            indices = np.asarray(f[A_ref[0]]['jc'])
-            indptr = np.asarray(f[A_ref[0]]['ir'])
-            data = np.asarray(f[A_ref[0]]['data'])
-            # sanity check
-            if self.num_beamlets != indices.size - 1:
-                print 'ERROR IN DIMENSION MISMATCH' * 40
-
-            self.Dij = sps.csr_matrix((data, indptr, indices), shape=(self.num_beamlets, self.num_vox))
-        else:
-            print 'importing {} Dij as dense matrix, converting to sparse...'.format(self.name)
-            self.Dij = sps.csr_matrix(np.asarray(f[A_ref[0]]))

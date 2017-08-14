@@ -27,13 +27,3 @@ def is_adjacent(aper_L, aper_R, distance_limit):
 
 
 
-class aperture(object):
-    def __init__(self, CP, aperture_shape_details):
-        self.left_leaves = None
-        self.right_leaves = None
-        self.intensity = None
-        self.Dkj_per_structure = None
-
-
-    def calc_dose(self,x=None):
-        pass
