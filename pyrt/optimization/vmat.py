@@ -6,6 +6,7 @@ import scipy.optimize as spo
 from pyrt.data.data_trots import *
 from pyrt.tools import *
 from pyrt.optimization.model import *
+from pyrt.optimization.tools import *
 
 import gurobipy as grb
 
@@ -20,8 +21,12 @@ class vmat_mip(model_base):
         super(self.__class__,self).__init__(input_dict,modality=modality)
         self.run_title = run_title
         self.model_params = input_dict['model_params'].copy()
+        self.weights_per_structure = None
 
         self.m = grb.Model()
+
+        save_weights_from_input_dict(self)
+
 
         self.build_model()
 
@@ -77,6 +82,15 @@ class vmat_mip(model_base):
                 if self.data.structure[s].is_target:
                     self.m.addConstr(self.obj_var[s][v], grb.GRB.GREATER_EQUAL, self.thresholds[s][v] - self.dose_var[s][v])
 
+        self.m.update()
+
+    def generate_objective(self):
+        lin2 = grb.LinExpr()
+        for s in range(len(self.data.structures)):
+            for v in range(self.data.structures[s].num_vox):
+                lin2 += self.obj_var[s][v] * self.weights_per_structure[s][v]
+
+        self.m.setObjective(lin2, grb.GRB.MINIMIZE)
         self.m.update()
 
     def optimize(self): # probably need some inputs/default params like in IMRT one
