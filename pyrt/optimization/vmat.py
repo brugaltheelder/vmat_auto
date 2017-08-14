@@ -36,21 +36,21 @@ class vmat_mip(model_base):
         # generate optimization metadata you need, can break into functions like you did before (building vars, dose vars, aper vars, etc)
         # you have self.data as the data object
 
-        # self.generate_dose_variables()
+        self.generate_dose_variables()
         # self.generate_aper_variables()
-        # self.generate_thresholds()
-        # self.generate_objective_variables()
+        self.generate_thresholds()
+        self.generate_objective_variables()
         # self.generate_one_aperture()
         # self.generate_network()
         # self.generate_bilinear_constraints()
         # self.generate_dose_constraints()
-        # self.generate_objective_constraints()
-        # self.generate_objective()
+        self.generate_objective_constraints()
+        self.generate_objective()
 
         pass
 
     def generate_dose_variables(self):
-        self.dose_var = [self.m.addVars(self.data.structures[s].num_vox, name='z_{}_'.format(s)) for s in range(len(self.data.structures))]
+        self.dose_var = [self.m.addVars(self.data.structures[s].num_vox, name='z_{}_'.format(self.data.structures[s].name.replace(' ','_'))) for s in range(len(self.data.structures))]
         self.m.update()
 
     def generate_thresholds(self):
@@ -58,7 +58,7 @@ class vmat_mip(model_base):
         self.m.update()
 
     def generate_objective_variables(self):
-        self.obj_var = [self.m.addVars(self.data.structures[s].num_vox, name='h_{}_'.format(s)) for s in range(len(self.data.structures))]
+        self.obj_var = [self.m.addVars(self.data.structures[s].num_vox, name='h_{}_'.format(self.data.structures[s].name.replace(' ','_'))) for s in range(len(self.data.structures))]
         self.m.update()
 
     def build_dose_constraints(self):
@@ -79,7 +79,7 @@ class vmat_mip(model_base):
             for v in range(self.data.structures[s].num_vox):
                 self.m.addConstr(self.obj_var[s][v], grb.GRB.GREATER_EQUAL, 0.)
                 self.m.addConstr(self.obj_var[s][v], grb.GRB.GREATER_EQUAL, self.dose_var[s][v] - self.thresholds[s][v])
-                if self.data.structure[s].is_target:
+                if self.data.structures[s].is_target:
                     self.m.addConstr(self.obj_var[s][v], grb.GRB.GREATER_EQUAL, self.thresholds[s][v] - self.dose_var[s][v])
 
         self.m.update()
