@@ -74,7 +74,7 @@ class vmat_mip(model_base):
             for v in range(self.data.structures[s].num_vox):
                 self.m.addConstr(self.obj_var[s][v], grb.GRB.GREATER_EQUAL, 0.)
                 self.m.addConstr(self.obj_var[s][v], grb.GRB.GREATER_EQUAL, self.dose_var[s][v] - self.thresholds[s][v])
-                if struct_obj.is_target:
+                if self.data.structure[s].is_target:
                     self.m.addConstr(self.obj_var[s][v], grb.GRB.GREATER_EQUAL, self.thresholds[s][v] - self.dose_var[s][v])
 
         self.m.update()
