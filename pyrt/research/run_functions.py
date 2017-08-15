@@ -1,12 +1,19 @@
+from pyrt.optimization.vmat import *
+from pyrt.tools import print_structure_info
+
+
 # Run All
-def run_all(input_dict):
+def run_all(case,input_dict):
     for filename in os.listdir(cwd):
-        # build input dictionary for a particular case
-        input_dict['filename'] = filename
-        # call run_case(input)
-        run_case(input_dict)
-        print_structure_info(data)
-        print '-' * 40
+
+        if case in filename:
+            # build input dictionary for a particular case
+            input_dict['filename'] = filename
+
+            # call run_case(input)
+            run_case(input_dict)
+            # print_structure_info(data)
+            print '-' * 40
 
 
 def run_case(input_dict):
@@ -18,4 +25,4 @@ def run_case(input_dict):
     model.optimize()
 
     # print out DVH
-    model.plot_DVH(run_tag='default', saveDVH=True, num_bins=500)
+    model.plot_DVH(run_tag=input_dict['filename'], saveDVH=True, num_bins=500)

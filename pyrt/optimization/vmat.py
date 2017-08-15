@@ -170,6 +170,8 @@ class vmat_mip(model_base):
         self.generate_bilinear_constraints()
         self.build_dose_constraints()
         self.generate_objective_constraints()
+
+        print 'Creating objective function'
         self.generate_objective()
 
         print_in_box('Gurobi Model Constructed')
