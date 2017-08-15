@@ -6,11 +6,11 @@ import os
 __author__ = 'troy'
 
 
-def print_in_box(string_input):
+def print_in_box(string_input, indent_amount = 0):
     length = len(string_input)
-    print '-'*(length+6)
-    print '|  {}  |'.format(string_input)
-    print '-'*(length+6)
+    print '/t'*indent_amount+'-'*(length+6)
+    print '/t'*indent_amount+'|  {}  |'.format(string_input)
+    print '/t'*indent_amount+'-'*(length+6)
 
 
 
