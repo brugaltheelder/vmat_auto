@@ -70,7 +70,7 @@ class structure(object):
 
 class control_point_vmat(object):
 
-    def __init__(self, cp_number, field, min_row, max_row, initial_beamlet_index, number_beamlets ):
+    def __init__(self, cp_number, field, min_row, max_row, initial_beamlet_index, number_beamlets, modality):
         self.cp_number = cp_number
         self.min_row = min_row
         self.max_row = max_row
@@ -80,7 +80,8 @@ class control_point_vmat(object):
         self.final_beamlet_index = initial_beamlet_index+number_beamlets
         self.field = field.copy()
 
-        self.build_leaf_metadata(field)
+        if modality!='imrt':
+            self.build_leaf_metadata(field)
         self.build_spatial_metadata(field)
 
         # check if beamlet row sum == number_beamlets
