@@ -22,7 +22,7 @@ def save_weights_from_input_dict(model, target_weights_label='target_weights', o
 
 
 class aperture(object):
-    def __init__(self, data, CP, aper_left_pos = [], aper_right_pos = [], aper_intensity = 1. , set_open_aper=False):
+    def __init__(self, data, CP, aper_left_pos = [], aper_right_pos = [], aper_intensity = 1. , set_open_aper=False, beamlet_override=None):
         ### aper shape details
         assert(isinstance(CP, control_point_vmat))
         assert (isinstance(data, patient_data))
@@ -31,6 +31,11 @@ class aperture(object):
             self.left_leaf_position = [CP.left_leaf_position[r] for r in range(CP.num_rows)]
             self.right_leaf_position = [CP.left_leaf_position[r] + CP.width_per_row[r] for r in range(CP.num_rows)]
             self.intensity = 1.
+        elif beamlet_override is not None:
+            #todo troy beamlet override
+            pass
+
+
         else:
             self.left_leaf_position = aper_left_pos[:]
             self.right_leaf_position = aper_right_pos[:]
@@ -45,18 +50,16 @@ class aperture(object):
     def build_Dkj(self,CP,data):
         assert (isinstance(CP, control_point_vmat))
         assert (isinstance(data, patient_data))
+
         self.Dkj_per_structure = [np.zeros(s.num_vox) for s in data.structures]
         self.beamlet_members = []
-        for r in range(CP.num_rows):
 
+
+        for r in range(CP.num_rows):
             for i in range(self.left_leaf_position[r], self.right_leaf_position[r]):
                 self.beamlet_members.append(CP.initial_beamlet_index + CP.left_leaf_index[r] + (i - CP.left_leaf_position[r]))
 
-        print CP.cp_number
-        print self.beamlet_members
         for s in range(len(data.structures)):
-            # self.Dkj_per_structure[s] += np.asarray(
-            #     data.structures[s].Dij.sum(axis=0)).flatten()
             self.Dkj_per_structure[s] += np.asarray(data.structures[s].Dij[np.array(self.beamlet_members)].sum(axis=0)).flatten()
 
 

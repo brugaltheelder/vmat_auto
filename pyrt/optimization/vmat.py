@@ -128,8 +128,25 @@ class vmat_mip(model_base):
 
         save_weights_from_input_dict(self)
 
+        self.apertures_per_cp = [[] for cp in self.data.num_control_points]
+
+        self.build_apertures()
+
+
         if build_model:
             self.build_model()
+
+    def build_apertures(self, aper_types_list=['conf']):
+
+        if 'conf' in aper_types_list:
+            # execute conf aper building
+            for cp in range(self.data.num_control_points):
+
+                self.apertures_per_cp[cp].append(aperture(self.data, self.data.control_points[cp], set_open_aper=True))
+
+
+
+
 
 
 
@@ -139,6 +156,7 @@ class vmat_mip(model_base):
 
         self.generate_dose_variables()
         # self.generate_aper_variables()
+
         self.generate_thresholds()
         self.generate_objective_variables()
         # self.generate_one_aperture()
