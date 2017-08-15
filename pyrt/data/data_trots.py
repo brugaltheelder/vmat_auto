@@ -6,13 +6,13 @@ from pyrt.data.tools import *
 
 
 class patient_data(object):
-    def __init__(self, input_dict):
+    def __init__(self, input_dict, modality):
         self.input_dict = input_dict.copy()
         self.f = h5py.File(self.input_dict['cwd'] + self.input_dict['filename'], 'r')
 
         # read in num beamlets and cumulative beamlet thing
         self.num_control_points = int(np.asarray(self.f['patient/Beams/Num']))
-        self.beamlets_per_cp = np.asarray(self.f['patient/Beams/ElementIndex']).flatten()
+        self.beamlets_per_cp = np.asarray(self.f['patient/Beams/ElementIndex'], dtype=np.int32).flatten()
         self.cumulative_beamlets_per_cp = np.array([0] + np.cumsum(self.beamlets_per_cp).tolist())
         self.num_beamlets = int(self.beamlets_per_cp.sum())
 
@@ -20,19 +20,32 @@ class patient_data(object):
         self.structures = []
         self.build_structures()
 
+
         print 'Building CP'
         self.control_points = []
-        self.generate_control_point_data()
+        self.generate_control_point_data(modality)
 
 
-    def generate_control_point_data(self):
-        # Get min_max bounds
-        min_row, max_row = find_min_max_row(self)
-        for c in range(self.num_control_points):
-            # build metadata read in field
-            b = self.f['patient/Beams/BeamConfig']
-            field = np.asarray(self.f[b['Field'][c][0]])
-            self.control_points.append(control_point(c,field, min_row,max_row,self.cumulative_beamlets_per_cp[c],self.beamlets_per_cp[c]))
+    def generate_control_point_data(self, modality):
+
+        if modality=='imrt':
+            min_row, max_row = find_min_max_row_imrt(self)
+            for c in range(self.num_control_points):
+                # build metadata read in field
+                b = self.f['patient/Beams/BeamConfig']
+                field = np.asarray(self.f[b['Field'][c][0]])
+                #todo troy control point only works with vmat cases because of non-continuous FM in imrt problems
+                self.control_points.append(control_point_vmat(c, field, min_row[c], max_row[c], self.cumulative_beamlets_per_cp[c], self.beamlets_per_cp[c]))
+        elif modality=='vmat' or modality=='conf_arc':
+            min_row, max_row = find_min_max_row(self)
+            for c in range(self.num_control_points):
+                # build metadata read in field
+                b = self.f['patient/Beams/BeamConfig']
+                field = np.asarray(self.f[b['Field'][c][0]])
+                self.control_points.append(control_point_vmat(c, field, min_row, max_row, self.cumulative_beamlets_per_cp[c],
+                                                              self.beamlets_per_cp[c]))
+        else:
+            print 'improper modality: {}'.format(modality)
 
 
 
