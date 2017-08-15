@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
+import os
 
 __author__ = 'troy'
 
@@ -45,7 +46,10 @@ def plot_DVH(model, saveName='', showPlots=False, saveDVH=False, run_tag=None,nu
 
     if len(saveName) > 1 or saveDVH:
 
-        plt.savefig(model.data.input_dict['figure_directory'] + 'dvh_' + saveName + '_' + run_label + '.png',
+        if not os.path.exists(model.data.input_dict['cwd'] + model.data.input_dict['figure_directory']):
+            os.makedirs(model.data.input_dict['cwd'] + model.data.input_dict['figure_directory'])
+
+        plt.savefig(model.data.input_dict['cwd'] + model.data.input_dict['figure_directory'] + 'dvh_' + saveName + '_' + run_label + '.png',
                     bbox_extra_artists=(lgd,), bbox_inches='tight')
     if showPlots:
         plt.show()

@@ -165,7 +165,7 @@ class vmat_mip(model_base):
         self.generate_objective_constraints()
         self.generate_objective()
 
-        pass
+
 
     def generate_dose_variables(self):
         self.dose_var = [self.m.addVars(self.data.structures[s].num_vox, name='z_{}_'.format(self.data.structures[s].name.replace(' ','_'))) for s in range(len(self.data.structures))]
@@ -205,8 +205,8 @@ class vmat_mip(model_base):
     def generate_bilinear_constraints(self):
         for cp in range(self.data.num_control_points):
             for a in range(len(self.apertures_per_cp[cp])):
-                self.m.addConstr(self.aper_intensity_var[cp][a], grb.GRB.LESS_EQUAL,self.aper_binary_var[cp][a] * self.model_params['maxIntensity'], name='Bilinear_Upper_Bound_[{}][{}]'.format(cp, a))
-                self.m.addConstr(self.aper_intensity_var[cp][a], grb.GRB.GREATER_EQUAL, self.aper_binary_var[cp][a] * self.model_params['minIntensity'], name='Bilinear_Lower_Bound_[{}][{}]'.format(cp, a))
+                self.m.addConstr(self.aper_intensity_var[cp][a], grb.GRB.LESS_EQUAL,self.aper_binary_var[cp][a] * self.model_params['max_intensity'], name='Bilinear_Upper_Bound_[{}][{}]'.format(cp, a))
+                self.m.addConstr(self.aper_intensity_var[cp][a], grb.GRB.GREATER_EQUAL, self.aper_binary_var[cp][a] * self.model_params['min_intensity'], name='Bilinear_Lower_Bound_[{}][{}]'.format(cp, a))
         self.m.update()
 
     # h >= z - Rx, h >=0, and h >= Rx -z if tumor
@@ -233,9 +233,15 @@ class vmat_mip(model_base):
 
 
         # write optimization code here, then some data extraction)
-        # self.m.optimize()
+        self.m.optimize()
 
         # save apertures (or the indices of apertures) of solution
+
+        for s in range(len(self.data.structures)):
+            for v in range(self.data.structures[s].num_vox):
+                self.current_dose_per_structure[s][v] = self.dose_var[s][v].x
+
+        # todo extract other variable info (aperture intensity)
 
         self.dose_dict[self.run_title] = [np.copy(self.current_dose_per_structure[s]) for s in range(len(self.data.structures))]
         self.obj_dict[self.run_title] = self.current_obj
