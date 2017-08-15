@@ -27,6 +27,7 @@ class aperture(object):
         assert(isinstance(CP, control_point_vmat))
         assert (isinstance(data, patient_data))
         if set_open_aper:
+
             self.left_leaf_position = [CP.left_leaf_position[r] for r in range(CP.num_rows)]
             self.right_leaf_position = [CP.left_leaf_position[r] + CP.width_per_row[r] for r in range(CP.num_rows)]
             self.intensity = 1.
@@ -35,7 +36,9 @@ class aperture(object):
             self.right_leaf_position = aper_right_pos[:]
             self.intensity = aper_intensity
 
+
         self.build_Dkj(CP,data)
+
 
 
 
@@ -44,14 +47,18 @@ class aperture(object):
         assert (isinstance(data, patient_data))
         self.Dkj_per_structure = [np.zeros(s.num_vox) for s in data.structures]
         self.beamlet_members = []
+        for r in range(CP.num_rows):
+
+            for i in range(self.left_leaf_position[r], self.right_leaf_position[r]):
+                self.beamlet_members.append(CP.initial_beamlet_index + CP.left_leaf_index[r] + (i - CP.left_leaf_position[r]))
+
+        print CP.cp_number
+        print self.beamlet_members
         for s in range(len(data.structures)):
-            dense_dkj = np.zeros(data.structures[s].num_vox)
+            # self.Dkj_per_structure[s] += np.asarray(
+            #     data.structures[s].Dij.sum(axis=0)).flatten()
+            self.Dkj_per_structure[s] += np.asarray(data.structures[s].Dij[np.array(self.beamlet_members)].sum(axis=0)).flatten()
 
-            for r in range(CP.num_rows):
-                for i in range(self.left_leaf_position[r], self.right_leaf_position[r]):
-                    self.beamlet_members.append(CP.initial_beamlet_index + CP.left_leaf_index[r] + (self.left_leaf_position[r] - CP.left_leaf_position[r]))
-
-            self.Dkj_per_structure[s] = np.asarray(data.structures[s].Dij[np.array(self.beamlet_members)].sum(axis=0)).flatten()
 
 
     def get_fluence_map(self):

@@ -7,6 +7,7 @@ import scipy.optimize as spo
 from pyrt.data.data_trots import *
 from pyrt.tools import *
 from pyrt.optimization.model import *
+from pyrt.optimization.tools import *
 
 
 class imrt_fmo(model_base):
@@ -28,18 +29,9 @@ class imrt_fmo(model_base):
         # thresholds
         self.thresholds_per_structure = [np.ones(s.num_vox)*s.rx for s in self.data.structures]
         # weights
-        self.weights_per_structure = [np.ones(s.num_vox) for s in self.data.structures]
-        for s_ind in range(len(self.data.structures)):
-            if self.data.structures[s_ind].is_target:
-                if self.data.structures[s_ind].name in self.model_params[target_weights_label].keys():
-                    self.weights_per_structure[s_ind] *= self.model_params[target_weights_label][self.data.structures[s_ind].name]
-                else:
-                    self.weights_per_structure[s_ind] *= self.model_params[target_weights_label]['default']
-            else:
-                if self.data.structures[s_ind].name in self.model_params[oar_weights_label].keys():
-                    self.weights_per_structure[s_ind] *= self.model_params[oar_weights_label][self.data.structures[s_ind].name]
-                else:
-                    self.weights_per_structure[s_ind] *= self.model_params[oar_weights_label]['default']
+        self.weights_per_structure = None
+        save_weights_from_input_dict(self, target_weights_label=target_weights_label,oar_weights_label=oar_weights_label)
+
 
 
     def optimize(self,startingX=None, UB=None, display=False, ftol=1e-5, gtol=1e-5):

@@ -56,7 +56,7 @@ class structure(object):
         if np.asarray(f[A_ref[0]]).shape == (3,):
             print 'importing {} Dij as sparse matrix'.format(self.name)
             indices = np.asarray(f[A_ref[0]]['jc'])
-            indptr = np.asarray(f[A_ref[0]]['ir']) - 1
+            indptr = np.asarray(f[A_ref[0]]['ir'])
             data = np.asarray(f[A_ref[0]]['data'])
             # sanity check
             if self.num_beamlets != indices.size - 1:

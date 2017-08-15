@@ -48,7 +48,8 @@ class conformal_arc(model_base):
 
     def generate_apertures(self):
         for a in range(self.num_apers):
-            self.apertures.append(aperture(self.data, self.data.control_points[0],set_open_aper=True))
+            self.apertures.append(aperture(self.data, self.data.control_points[a],set_open_aper=True))
+
 
 
     def optimize(self,startingX=None, UB=None, display=False, ftol=1e-5, gtol=1e-5):
@@ -57,7 +58,7 @@ class conformal_arc(model_base):
         else:
             x0 = np.zeros(self.num_apers)
 
-
+        print 'Solver Starting...'
         start = time()
         res = spo.minimize(self.calc_obj_grad, x0=x0, method='L-BFGS-B', jac=True, bounds=[(0, UB) for i in
                         xrange(self.num_apers)], options={'ftol': ftol, 'gtol': gtol, 'disp': display})
@@ -65,7 +66,9 @@ class conformal_arc(model_base):
         print '{} model solved in {} seconds'.format(self.modality,time() - start)
 
         self.aper_intensities, self.current_obj =res['x'], res['fun']
-        self.calc_dose_from_variables()
+        for a in range(len(self.apertures)):
+            self.apertures[a].intensity = self.aper_intensities[a]
+        self.calc_dose_from_variables(self.aper_intensities)
 
 
         self.dose_dict[self.run_title] = [np.copy(self.current_dose_per_structure[s]) for s in range(len(self.data.structures))]
@@ -79,7 +82,6 @@ class conformal_arc(model_base):
             for a in range(len(self.apertures)):
                 for s in range(len(self.data.structures)):
                     self.current_dose_per_structure[s] += self.apertures[a].Dkj_per_structure[s] * x[a]
-
         else:
             for a in range(len(self.apertures)):
                 for s in range(len(self.data.structures)):
@@ -116,7 +118,7 @@ class conformal_arc(model_base):
 
 
 class vmat_mip(model_base):
-    def __init__(self, input_dict,modality='imrt', run_title='default'):
+    def __init__(self, input_dict,modality='imrt', run_title='default',build_model = True):
         super(self.__class__,self).__init__(input_dict,modality=modality)
         self.run_title = run_title
         self.model_params = input_dict['model_params'].copy()
@@ -126,8 +128,8 @@ class vmat_mip(model_base):
 
         save_weights_from_input_dict(self)
 
-
-        self.build_model()
+        if build_model:
+            self.build_model()
 
 
 
