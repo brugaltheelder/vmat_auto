@@ -1,4 +1,5 @@
 import matplotlib.pyplot as plt
+import seaborn as sns
 import numpy as np
 import os
 
@@ -66,5 +67,68 @@ def is_adjacent(aper_L, aper_R, distance_limit):
     pass
 
 
+def plot_fluence_map(data, CP, beamlet_intensities, tight_bool=False, save_bool=False, save_name='aper_', buffer=1):
+    relevant_beamlets = range(CP.initial_beamlet_index, CP.final_beamlet_index)
+
+    fluence_map = np.zeros(data.control_points[CP.cp_number].field.shape)
+    if len(relevant_beamlets) != len(beamlet_intensities):
+        print "PLOTTING BEAMLET LENGTHS DIFFERENT"
+    for r in range(len(relevant_beamlets)):
+        x, y = tuple(data.control_points[CP.cp_number].field_position[r, :])
+        fluence_map[int(x), int(y)] = beamlet_intensities[r]
+    plt.figure()
 
 
+
+    if tight_bool or np.min(fluence_map) > 0:
+        rmin, rmax, cmin, cmax = bounding_box(fluence_map, buffer=buffer)
+        sns.heatmap(fluence_map[rmin:rmax, cmin:cmax])
+    else:
+        sns.heatmap(fluence_map)
+
+    if save_bool:
+        if not os.path.exists(data.input_dict['cwd'] + data.input_dict['figure_directory']):
+            os.makedirs(data.input_dict['cwd'] + data.input_dict['figure_directory'])
+
+        plt.savefig(
+            data.input_dict['cwd'] + data.input_dict['figure_directory'] + save_name + '_' + str(CP.cp_number) + '.png',
+            bbox_inches='tight')
+
+
+
+def plot_aper(aper, data, aper_number, tight_bool=False, save_bool=False, save_name='aper_', buffer=1):
+    relevant_beamlets = np.array(aper.beamlet_members[:]) - data.control_points[aper.cp_number].initial_beamlet_index
+    fluence_map = np.zeros(data.control_points[aper.cp_number].field.shape)
+    for r in relevant_beamlets:
+        x, y = tuple(data.control_points[aper.cp_number].field_position[r, :])
+        fluence_map[x, y] = 1.
+    plt.figure()
+
+    if tight_bool:
+        rmin, rmax, cmin, cmax = bounding_box(fluence_map, buffer=buffer)
+        sns.heatmap(fluence_map[rmin:rmax, cmin:cmax])
+    else:
+        sns.heatmap(fluence_map)
+
+    if save_bool:
+        if not os.path.exists(data.input_dict['cwd'] + data.input_dict['figure_directory']):
+            os.makedirs(data.input_dict['cwd'] + data.input_dict['figure_directory'])
+
+        plt.savefig(
+            data.input_dict['cwd'] + data.input_dict['figure_directory'] + save_name + '_' + str(aper_number) + '.png',
+            bbox_inches='tight')
+
+
+def bounding_box(img, buffer = 1):
+
+    rows = np.any(img, axis=1)
+    cols = np.any(img, axis=0)
+    rmin, rmax = np.where(rows)[0][[0, -1]]
+    cmin, cmax = np.where(cols)[0][[0, -1]]
+
+    rmin = max(0,rmin-buffer)
+    rmax = min(img.shape[0],rmax+buffer+1)
+    cmin = max(0, cmin - buffer)
+    cmax = min(img.shape[1], cmax + buffer+1)
+
+    return rmin, rmax, cmin, cmax

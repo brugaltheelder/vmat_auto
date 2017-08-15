@@ -82,9 +82,3 @@ class patient_data(object):
                                                  num_beamlets=self.num_beamlets, is_target=is_target))
 
 
-
-
-
-
-
-
