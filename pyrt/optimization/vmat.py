@@ -128,7 +128,7 @@ class vmat_mip(model_base):
 
         save_weights_from_input_dict(self)
 
-        self.apertures_per_cp = [[] for cp in self.data.num_control_points]
+        self.apertures_per_cp = [[] for cp in range(self.data.num_control_points)]
 
         self.build_apertures()
 
@@ -155,14 +155,13 @@ class vmat_mip(model_base):
         # you have self.data as the data object
 
         self.generate_dose_variables()
-        # self.generate_aper_variables()
-
+        self.generate_aper_variables()
         self.generate_thresholds()
         self.generate_objective_variables()
-        # self.generate_one_aperture()
+        self.generate_one_aperture()
         # self.generate_network()
-        # self.generate_bilinear_constraints()
-        # self.generate_dose_constraints()
+        self.generate_bilinear_constraints()
+        self.build_dose_constraints()
         self.generate_objective_constraints()
         self.generate_objective()
 
@@ -170,6 +169,11 @@ class vmat_mip(model_base):
 
     def generate_dose_variables(self):
         self.dose_var = [self.m.addVars(self.data.structures[s].num_vox, name='z_{}_'.format(self.data.structures[s].name.replace(' ','_'))) for s in range(len(self.data.structures))]
+        self.m.update()
+
+    def generate_aper_variables(self):
+        self.aper_intensity_var = [[self.m.addVar(lb=0,name='y_{}_{}'.format(cp,a)) for a in range(len(self.apertures_per_cp[cp]))] for cp in range(self.data.num_control_points)]
+        self.aper_binary_var = [[self.m.addVar(lb=0, vtype=grb.GRB.BINARY,name='x_{}_{}'.format(cp,a)) for a in range(len(self.apertures_per_cp[cp]))] for cp in range(self.data.num_control_points)]
         self.m.update()
 
     def generate_thresholds(self):
@@ -181,16 +185,29 @@ class vmat_mip(model_base):
         self.m.update()
 
     def build_dose_constraints(self):
-        # for s in range(len(self.data.structures)):
-        #     for v in range(self.data.structures[s].num_vox):
-        #         lin1 = grb.LinExpr()
-        #         for cp in range(self.data.num_control_points):
-        #         for aper_index in range(self.data.apertures_per_beam_dict[beam_index].num_apers):
-        #             lin1 += self.data.apertures_per_beam_dict[beam_index].Dbaj[aper_index, voxel] * self.data.apertures_per_beam_dict[beam_index].intensity_variables[aper_index]
-        #     self.m.addConstr(self.dose_var[voxel], grb.GRB.EQUAL, lin1, name='Dose_Constraint_{}'.format(voxel))
-        #
-        # self.m.update()
-        pass
+        for s in range(len(self.data.structures)):
+            for v in range(self.data.structures[s].num_vox):
+                lin1 = grb.LinExpr()
+                for cp in range(self.data.num_control_points):
+                    for a in range(len(self.apertures_per_cp[cp])):
+                        self.apertures_per_cp[cp][a].Dkj_per_structure[s][v]
+                    lin1 += self.apertures_per_cp[cp][a].Dkj_per_structure[s][v] * self.aper_intensity_var[cp][a]
+            self.m.addConstr(self.dose_var[s][v], grb.GRB.EQUAL, lin1, name='Dose_Constraint_{}'.format(self.data.structures[s].name.replace(' ','_')))
+
+        self.m.update()
+
+    # Select only one aperture per beam
+    def generate_one_aperture(self):
+        for cp in range(self.data.num_control_points):
+            self.m.addConstr(sum(self.aper_binary_var[cp][a] for a in range(len(self.apertures_per_cp[cp]))), grb.GRB.EQUAL, 1.,name='One_Aperture_Per_Beam_{}'.format(cp))
+        self.m.update()
+
+    def generate_bilinear_constraints(self):
+        for cp in range(self.data.num_control_points):
+            for a in range(len(self.apertures_per_cp[cp])):
+                self.m.addConstr(self.aper_intensity_var[cp][a], grb.GRB.LESS_EQUAL,self.aper_binary_var[cp][a] * self.model_params['maxIntensity'], name='Bilinear_Upper_Bound_[{}][{}]'.format(cp, a))
+                self.m.addConstr(self.aper_intensity_var[cp][a], grb.GRB.GREATER_EQUAL, self.aper_binary_var[cp][a] * self.model_params['minIntensity'], name='Bilinear_Lower_Bound_[{}][{}]'.format(cp, a))
+        self.m.update()
 
     # h >= z - Rx, h >=0, and h >= Rx -z if tumor
     def generate_objective_constraints(self):
