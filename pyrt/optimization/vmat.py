@@ -65,7 +65,7 @@ class vmat_mip(model_base):
         # for s in range(len(self.data.structures)):
         #     for v in range(self.data.structures[s].num_vox):
         #         lin1 = grb.LinExpr()
-        #         for cp in range(model.data.num_control_points):
+        #         for cp in range(self.data.num_control_points):
         #         for aper_index in range(self.data.apertures_per_beam_dict[beam_index].num_apers):
         #             lin1 += self.data.apertures_per_beam_dict[beam_index].Dbaj[aper_index, voxel] * self.data.apertures_per_beam_dict[beam_index].intensity_variables[aper_index]
         #     self.m.addConstr(self.dose_var[voxel], grb.GRB.EQUAL, lin1, name='Dose_Constraint_{}'.format(voxel))
@@ -96,8 +96,8 @@ class vmat_mip(model_base):
     def optimize(self): # probably need some inputs/default params like in IMRT one
 
 
-        # write optimization code here (probably self.m.optimize(), then some data extraction)
-
+        # write optimization code here, then some data extraction)
+        # self.m.optimize()
 
         # save apertures (or the indices of apertures) of solution
 
