@@ -145,11 +145,6 @@ class vmat_mip(model_base):
                 self.apertures_per_cp[cp].append(aperture(self.data, self.data.control_points[cp], set_open_aper=True))
 
 
-
-
-
-
-
     def build_model(self):
         # generate optimization metadata you need, can break into functions like you did before (building vars, dose vars, aper vars, etc)
         # you have self.data as the data object
