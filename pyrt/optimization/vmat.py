@@ -118,7 +118,7 @@ class conformal_arc(model_base):
 
 
 class vmat_mip(model_base):
-    def __init__(self, input_dict,modality='imrt', run_title='default',build_model = True):
+    def __init__(self, input_dict,modality='vmat', run_title='default',build_model = True):
         super(self.__class__,self).__init__(input_dict,modality=modality)
         self.run_title = run_title
         self.model_params = input_dict['model_params'].copy()
@@ -235,8 +235,10 @@ class vmat_mip(model_base):
         self.m.setObjective(lin2, grb.GRB.MINIMIZE)
         self.m.update()
 
-    def optimize(self): # probably need some inputs/default params like in IMRT one
+    def optimize(self,run_tag=None): # probably need some inputs/default params like in IMRT one
 
+        if run_tag is not None:
+            self.run_title = run_tag
 
         # write optimization code here, then some data extraction)
         self.m.optimize()

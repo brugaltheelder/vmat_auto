@@ -16,7 +16,7 @@ def find_min_max_row(data):
         field = np.asarray(data.f[b['Field'][cp][0]])
 
         min_cp = int(np.where(field == 1)[0])
-        max_cp = int(np.where(field == np.asarray(data.f['patient/Beams/ElementIndex'][0][cp]))[0])
+        max_cp = int(np.where(field == np.asarray(data.f['patient/Beams/ElementIndex']).flatten()[cp])[0])
         if min_cp < min_row:
             min_row = min_cp
         if max_cp > max_row:
@@ -109,13 +109,14 @@ class control_point_vmat(object):
 
         for row in self.row_array:
 
-            self.left_leaf_position.append(int(np.where(field[row][:] > 0)[0][0]))
-            self.left_leaf_index.append(field[row][np.where(field[row][:] > 0)[0][0]] - 1)
-            self.width_per_row.append(int(np.argmax(field[row][:])) - int(np.where(field[row][:] > 0)[0][0]) + 1)
-            # else:
-            #     self.left_leaf_position.append(0)
-            #     self.left_leaf_index.append(-1)
-            #     self.width_per_row.append(0)
+            if len(np.where(field[row][:] > 0)[0])>0:
+                self.left_leaf_position.append(int(np.where(field[row][:] > 0)[0][0]))
+                self.left_leaf_index.append(field[row][np.where(field[row][:] > 0)[0][0]] - 1)
+                self.width_per_row.append(int(np.argmax(field[row][:])) - int(np.where(field[row][:] > 0)[0][0]) + 1)
+            else:
+                self.left_leaf_position.append(0)
+                self.left_leaf_index.append(0)
+                self.width_per_row.append(0)
 
 
 
