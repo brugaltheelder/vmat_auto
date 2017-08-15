@@ -21,6 +21,16 @@ def save_weights_from_input_dict(model, target_weights_label='target_weights', o
                 model.weights_per_structure[s_ind] *= model.model_params[oar_weights_label]['default']
 
 
+
+
+
+def aper_gen_given_dose(dose_per_struct, data,CP):
+    # todo troy write this function
+
+    return None
+
+
+
 class aperture(object):
     def __init__(self, data, CP, aper_left_pos = [], aper_right_pos = [], aper_intensity = 1. , set_open_aper=False, beamlet_override=None):
         ### aper shape details
