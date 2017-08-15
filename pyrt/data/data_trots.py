@@ -35,7 +35,7 @@ class patient_data(object):
                 b = self.f['patient/Beams/BeamConfig']
                 field = np.asarray(self.f[b['Field'][c][0]])
                 #todo troy control point only works with vmat cases because of non-continuous FM in imrt problems
-                self.control_points.append(control_point_vmat(c, field, min_row[c], max_row[c], self.cumulative_beamlets_per_cp[c], self.beamlets_per_cp[c]))
+                self.control_points.append(control_point_vmat(c, field, min_row[c], max_row[c], self.cumulative_beamlets_per_cp[c], self.beamlets_per_cp[c],modality))
         elif modality=='vmat' or modality=='conf_arc':
             min_row, max_row = find_min_max_row(self)
             for c in range(self.num_control_points):
@@ -43,7 +43,7 @@ class patient_data(object):
                 b = self.f['patient/Beams/BeamConfig']
                 field = np.asarray(self.f[b['Field'][c][0]])
                 self.control_points.append(control_point_vmat(c, field, min_row, max_row, self.cumulative_beamlets_per_cp[c],
-                                                              self.beamlets_per_cp[c]))
+                                                              self.beamlets_per_cp[c],modality))
         else:
             print 'improper modality: {}'.format(modality)
 
