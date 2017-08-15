@@ -153,18 +153,26 @@ class vmat_mip(model_base):
     def build_model(self):
         # generate optimization metadata you need, can break into functions like you did before (building vars, dose vars, aper vars, etc)
         # you have self.data as the data object
-
+        print_in_box('Building Gurobi Model')
+        print 'Initializing dose and aperture variables'
         self.generate_dose_variables()
         self.generate_aper_variables()
+
         self.generate_thresholds()
+        print 'Initializing objective variables'
         self.generate_objective_variables()
-        self.generate_one_aperture()
+        self.generate_aperture_per_cp()
+
+        # print 'Building aperture network'
         # self.generate_network()
+
+        print 'Creating constraints'
         self.generate_bilinear_constraints()
         self.build_dose_constraints()
         self.generate_objective_constraints()
         self.generate_objective()
 
+        print_in_box('Gurobi Model Constructed')
 
 
     def generate_dose_variables(self):
@@ -186,20 +194,21 @@ class vmat_mip(model_base):
 
     def build_dose_constraints(self):
         for s in range(len(self.data.structures)):
+            print 'Building dose constraint for {}'.format(self.data.structures[s].name)
             for v in range(self.data.structures[s].num_vox):
                 lin1 = grb.LinExpr()
                 for cp in range(self.data.num_control_points):
                     for a in range(len(self.apertures_per_cp[cp])):
                         self.apertures_per_cp[cp][a].Dkj_per_structure[s][v]
                     lin1 += self.apertures_per_cp[cp][a].Dkj_per_structure[s][v] * self.aper_intensity_var[cp][a]
-            self.m.addConstr(self.dose_var[s][v], grb.GRB.EQUAL, lin1, name='Dose_Constraint_{}'.format(self.data.structures[s].name.replace(' ','_')))
+                self.m.addConstr(self.dose_var[s][v], grb.GRB.EQUAL, lin1, name='Dose_Constraint_{}'.format(self.data.structures[s].name.replace(' ','_')))
 
         self.m.update()
 
     # Select only one aperture per beam
-    def generate_one_aperture(self):
+    def generate_aperture_per_cp(self):
         for cp in range(self.data.num_control_points):
-            self.m.addConstr(sum(self.aper_binary_var[cp][a] for a in range(len(self.apertures_per_cp[cp]))), grb.GRB.EQUAL, 1.,name='One_Aperture_Per_Beam_{}'.format(cp))
+            self.m.addConstr(sum(self.aper_binary_var[cp][a] for a in range(len(self.apertures_per_cp[cp]))), grb.GRB.EQUAL, self.model_params['aper_limit'],name='One_Aperture_Per_Beam_{}'.format(cp))
         self.m.update()
 
     def generate_bilinear_constraints(self):
