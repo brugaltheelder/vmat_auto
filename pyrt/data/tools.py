@@ -93,8 +93,8 @@ class control_point_vmat(object):
         beamlet_counter = 0
         for r in range(self.num_rows):
             for i in range(self.width_per_row[r]):
-                self.field_position[beamlet_counter,0] = r+self.min_row
-                self.field_position[beamlet_counter,1] = i+self.left_leaf_position[r]
+                self.field_position[beamlet_counter,0] = int(r+self.min_row)
+                self.field_position[beamlet_counter,1] = int(i+self.left_leaf_position[r])
 
                 beamlet_counter+=1
 

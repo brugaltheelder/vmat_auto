@@ -36,6 +36,7 @@ class aperture(object):
         ### aper shape details
         assert(isinstance(CP, control_point_vmat))
         assert (isinstance(data, patient_data))
+        self.cp_number = CP.cp_number
         if set_open_aper:
 
             self.left_leaf_position = [CP.left_leaf_position[r] for r in range(CP.num_rows)]
