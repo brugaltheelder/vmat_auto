@@ -81,11 +81,25 @@ class control_point_vmat(object):
         self.field = field.copy()
 
         self.build_leaf_metadata(field)
+        self.build_spatial_metadata(field)
 
         # check if beamlet row sum == number_beamlets
         if np.array(self.width_per_row).sum() != self.number_beamlets:
             print np.array(self.width_per_row).sum(), self.number_beamlets
             print "ERROR: NOT ALL BEAMLETS COUNTED or GAPS IN FLUENCE MAP"
+
+    def build_spatial_metadata(self,field):
+        self.field_position =  np.zeros((self.number_beamlets,2))
+        beamlet_counter = 0
+        for r in range(self.num_rows):
+            for i in range(self.width_per_row[r]):
+                self.field_position[beamlet_counter,0] = r+self.min_row
+                self.field_position[beamlet_counter,1] = i+self.left_leaf_position[r]
+
+                beamlet_counter+=1
+
+
+
 
     def build_leaf_metadata(self,field):
         self.left_leaf_position = []
@@ -94,8 +108,6 @@ class control_point_vmat(object):
         self.row_array = range(self.min_row, self.max_row)
 
         for row in self.row_array:
-
-
 
             self.left_leaf_position.append(int(np.where(field[row][:] > 0)[0][0]))
             self.left_leaf_index.append(field[row][np.where(field[row][:] > 0)[0][0]] - 1)
