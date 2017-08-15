@@ -1,6 +1,6 @@
 
 import numpy as np
-from pyrt.data.tools import control_point
+from pyrt.data.tools import control_point_vmat
 from pyrt.data.data_trots import patient_data
 
 def save_weights_from_input_dict(model, target_weights_label='target_weights', oar_weights_label='oar_weights'):
@@ -24,7 +24,7 @@ def save_weights_from_input_dict(model, target_weights_label='target_weights', o
 class aperture(object):
     def __init__(self, data, CP, aper_left_pos = [], aper_right_pos = [], aper_intensity = 1. , set_open_aper=False):
         ### aper shape details
-        assert(isinstance(CP,control_point))
+        assert(isinstance(CP, control_point_vmat))
         assert (isinstance(data, patient_data))
         if set_open_aper:
             self.left_leaf_position = [CP.left_leaf_position[r] for r in range(CP.num_rows)]
@@ -40,17 +40,26 @@ class aperture(object):
 
 
     def build_Dkj(self,CP,data):
-        assert (isinstance(CP, control_point))
+        assert (isinstance(CP, control_point_vmat))
         assert (isinstance(data, patient_data))
         self.Dkj_per_structure = [np.zeros(s.num_vox) for s in data.structures]
+        self.beamlet_members = []
         for s in range(len(data.structures)):
             dense_dkj = np.zeros(data.structures[s].num_vox)
-            beamlet_indices = []
+
             for r in range(CP.num_rows):
                 for i in range(self.left_leaf_position[r], self.right_leaf_position[r]):
-                    beamlet_indices.append(CP.initial_beamlet_index + CP.left_leaf_index[r] + (self.left_leaf_position[r] - CP.left_leaf_position[r]))
+                    self.beamlet_members.append(CP.initial_beamlet_index + CP.left_leaf_index[r] + (self.left_leaf_position[r] - CP.left_leaf_position[r]))
 
-            self.Dkj_per_structure[s] = np.asarray(data.structures[s].Dij[np.array(beamlet_indices)].sum(axis=0))
+            self.Dkj_per_structure[s] = np.asarray(data.structures[s].Dij[np.array(self.beamlet_members)].sum(axis=0)).flatten()
+
+
+    def get_fluence_map(self):
+
+        fluence = np.zeros(len(self.left_leaf_position), max(self.right_leaf_position))
+        for r in range(len(self.left_leaf_position)):
+            fluence[self.left_leaf_position[r]:self.right_leaf_position[r]] = self.intensity
+        return fluence
 
 
 

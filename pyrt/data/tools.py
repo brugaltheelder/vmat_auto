@@ -8,10 +8,13 @@ import h5py
 
 def find_min_max_row(data):
     b = data.f['patient/Beams/BeamConfig']
-    min_row = np.asarray(data.f[b['Field'][0][0]]).shape[1]
-    max_row = 0.
+    min_row = np.asarray(data.f[b['Field'][0][0]]).shape[1] # [np.asarray(data.f[b['Field'][0][0]]).shape[1]]*data.num_control_points
+    max_row = 0 # [0]*data.num_control_points
+
+
     for cp in range(data.num_control_points):
         field = np.asarray(data.f[b['Field'][cp][0]])
+
         min_cp = int(np.where(field == 1)[0])
         max_cp = int(np.where(field == np.asarray(data.f['patient/Beams/ElementIndex'][0][cp]))[0])
         if min_cp < min_row:
@@ -21,6 +24,21 @@ def find_min_max_row(data):
 
     return min_row, max_row+1
 
+
+def find_min_max_row_imrt(data):
+    b = data.f['patient/Beams/BeamConfig']
+    min_row = [np.asarray(data.f[b['Field'][0][0]]).shape[1]]*data.num_control_points
+    max_row = [0]*data.num_control_points
+
+
+    for cp in range(data.num_control_points):
+        field = np.asarray(data.f[b['Field'][cp][0]])
+
+        min_row[cp] = int(np.where(field == 1)[0])
+        max_row[cp]= int(np.where(field == np.asarray(data.f['patient/Beams/ElementIndex'][0][cp]))[0])+1
+
+
+    return min_row[:], max_row[:]
 
 
 class structure(object):
@@ -50,7 +68,7 @@ class structure(object):
             self.Dij = sps.csr_matrix(np.asarray(f[A_ref[0]]))
 
 
-class control_point(object):
+class control_point_vmat(object):
 
     def __init__(self, cp_number, field, min_row, max_row, initial_beamlet_index, number_beamlets ):
         self.cp_number = cp_number
@@ -66,7 +84,8 @@ class control_point(object):
 
         # check if beamlet row sum == number_beamlets
         if np.array(self.width_per_row).sum() != self.number_beamlets:
-            print "ERROR: NOT ALL BEAMLETS COUNTED"
+            print np.array(self.width_per_row).sum(), self.number_beamlets
+            print "ERROR: NOT ALL BEAMLETS COUNTED or GAPS IN FLUENCE MAP"
 
     def build_leaf_metadata(self,field):
         self.left_leaf_position = []
@@ -75,9 +94,17 @@ class control_point(object):
         self.row_array = range(self.min_row, self.max_row)
 
         for row in self.row_array:
+
+
+
             self.left_leaf_position.append(int(np.where(field[row][:] > 0)[0][0]))
             self.left_leaf_index.append(field[row][np.where(field[row][:] > 0)[0][0]] - 1)
             self.width_per_row.append(int(np.argmax(field[row][:])) - int(np.where(field[row][:] > 0)[0][0]) + 1)
+            # else:
+            #     self.left_leaf_position.append(0)
+            #     self.left_leaf_index.append(-1)
+            #     self.width_per_row.append(0)
+
 
 
 
