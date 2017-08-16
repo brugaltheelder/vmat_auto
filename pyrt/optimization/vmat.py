@@ -121,12 +121,17 @@ class vmat_mip(model_base):
         if build_model:
             self.build_model()
 
-    def build_apertures(self, aper_types_list=['conf']):
+    def build_apertures(self, aper_types_list=['open']):
 
-        if 'conf' in aper_types_list:
+        if 'open' in aper_types_list:
             # execute conf aper building
             for cp in range(self.data.num_control_points):
                 self.apertures_per_cp[cp].append(aperture(self.data, self.data.control_points[cp], set_open_aper=True))
+
+        if 'megaperture' in aper_types_list:
+            print 'MEGA APERTURE'
+
+
 
     def build_model(self):
         # generate optimization metadata you need, can break into functions like you did before (building vars, dose vars, aper vars, etc)

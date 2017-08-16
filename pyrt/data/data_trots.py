@@ -16,6 +16,8 @@ class patient_data(object):
         self.cumulative_beamlets_per_cp = np.array([0] + np.cumsum(self.beamlets_per_cp).tolist())
         self.num_beamlets = int(self.beamlets_per_cp.sum())
 
+        self.cp_redundancy = self.input_dict['cp_redundancy']
+
         print 'Building Structures'
         self.structures = []
         self.build_structures()
@@ -23,10 +25,10 @@ class patient_data(object):
 
         print 'Building CP'
         self.control_points = []
-        self.generate_control_point_data(modality)
+        self.generate_control_point_data(modality,cp_redundancy=self.cp_redundancy)
 
 
-    def generate_control_point_data(self, modality):
+    def generate_control_point_data(self, modality, cp_redundancy=1 ):
 
         if modality=='imrt':
             min_row, max_row = find_min_max_row_imrt(self)
@@ -38,12 +40,20 @@ class patient_data(object):
                 self.control_points.append(control_point_vmat(c, field, min_row[c], max_row[c], self.cumulative_beamlets_per_cp[c], self.beamlets_per_cp[c],modality))
         elif modality=='vmat' or modality=='conf_arc':
             min_row, max_row = find_min_max_row(self)
+            self.num_control_points = self.num_control_points * cp_redundancy
+
+
+
+
+
             for c in range(self.num_control_points):
+                current_cp =  int(c/cp_redundancy)
+                print c, current_cp
                 # build metadata read in field
                 b = self.f['patient/Beams/BeamConfig']
-                field = np.asarray(self.f[b['Field'][c][0]])
-                self.control_points.append(control_point_vmat(c, field, min_row, max_row, self.cumulative_beamlets_per_cp[c],
-                                                              self.beamlets_per_cp[c],modality))
+                field = np.asarray(self.f[b['Field'][current_cp][0]])
+                self.control_points.append(control_point_vmat(c,current_cp, field, min_row, max_row, self.cumulative_beamlets_per_cp[current_cp],
+                                                              self.beamlets_per_cp[current_cp],modality))
         else:
             print 'improper modality: {}'.format(modality)
 
