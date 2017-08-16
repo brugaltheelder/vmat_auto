@@ -112,6 +112,7 @@ def plot_aper(aper, data, aper_ID = '', tight_bool=False, save_bool=False, save_
         x, y = tuple(data.control_points[aper.cp_number].field_position[r, :])
         fluence_map[int(x), int(y)] = aper.intensity
 
+
     vmax_value = np.max(fluence_map)
     if max_intensity is not None:
         vmax_value = max_intensity

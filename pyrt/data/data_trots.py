@@ -16,7 +16,7 @@ class patient_data(object):
         self.cumulative_beamlets_per_cp = np.array([0] + np.cumsum(self.beamlets_per_cp).tolist())
         self.num_beamlets = int(self.beamlets_per_cp.sum())
 
-        self.cp_redundancy = self.input_dict['cp_redundancy']
+        self.cp_redundancy = self.input_dict['model_params']['cp_redundancy']
 
         print 'Building Structures'
         self.structures = []
@@ -37,18 +37,13 @@ class patient_data(object):
                 b = self.f['patient/Beams/BeamConfig']
                 field = np.asarray(self.f[b['Field'][c][0]])
                 #todo troy control point only works with vmat cases because of non-continuous FM in imrt problems
-                self.control_points.append(control_point_vmat(c, field, min_row[c], max_row[c], self.cumulative_beamlets_per_cp[c], self.beamlets_per_cp[c],modality))
+                self.control_points.append(control_point_vmat(c, c, field, min_row[c], max_row[c], self.cumulative_beamlets_per_cp[c], self.beamlets_per_cp[c],modality))
         elif modality=='vmat' or modality=='conf_arc':
             min_row, max_row = find_min_max_row(self)
             self.num_control_points = self.num_control_points * cp_redundancy
 
-
-
-
-
             for c in range(self.num_control_points):
                 current_cp =  int(c/cp_redundancy)
-                print c, current_cp
                 # build metadata read in field
                 b = self.f['patient/Beams/BeamConfig']
                 field = np.asarray(self.f[b['Field'][current_cp][0]])

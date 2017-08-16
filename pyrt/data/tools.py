@@ -113,8 +113,8 @@ class control_point_vmat(object):
                 self.left_leaf_index.append(field[row][np.where(field[row][:] > 0)[0][0]] - 1)
                 self.width_per_row.append(int(np.argmax(field[row][:])) - int(np.where(field[row][:] > 0)[0][0]) + 1)
             else:
-                self.left_leaf_position.append(0)
-                self.left_leaf_index.append(0)
+                self.left_leaf_position.append(int(self.field.shape[1]/2))
+                self.left_leaf_index.append(int(self.field.shape[1]/2))
                 self.width_per_row.append(0)
 
 

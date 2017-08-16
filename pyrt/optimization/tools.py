@@ -43,6 +43,14 @@ def aper_gen_given_dose(dose_per_struct, data, CP):
     return None
 
 
+def get_aper_from_beamlets():
+    pass
+
+def gen_aper_from_back_proj():
+    pass
+
+
+
 def pricing_problem_beam_aper(CP,beamlet_gradient):
     beamlets = []
 
@@ -73,6 +81,7 @@ class aperture(object):
                  beamlet_override=None):
         ### aper shape details
         assert (isinstance(CP, control_point_vmat))
+
         assert (isinstance(data, patient_data))
         self.cp_number = CP.cp_number
         self.org_cp_number = CP.org_cp_number
@@ -83,8 +92,39 @@ class aperture(object):
             self.right_leaf_position = [CP.left_leaf_position[r] + CP.width_per_row[r] for r in range(CP.num_rows)]
             self.intensity = 1.
         elif beamlet_override is not None:
-            # todo troy beamlet override
-            pass
+
+
+            row_counter = 0
+            self.left_leaf_position = [int((CP.left_leaf_position[r]+CP.width_per_row[r])/2 ) for r in range(CP.num_rows)]
+            self.right_leaf_position = [int((CP.left_leaf_position[r]+CP.width_per_row[r])/2 ) for r in range(CP.num_rows)]
+            self.intensity = aper_intensity
+            current_row = int(CP.field_position[beamlet_override[0]][0])
+            self.left_leaf_position[0] = int(CP.field_position[beamlet_override[0]][1])
+            print current_row
+            print self.left_leaf_position
+            print self.right_leaf_position
+            total_beamlets = 0
+            break_bool = False
+            for b in range(1,len(beamlet_override)):
+
+                x,y = tuple(CP.field_position[beamlet_override[b]])
+
+                if int(x)>current_row:
+                    self.right_leaf_position[row_counter] = int(CP.field_position[beamlet_override[b - 1]][1]) + 1
+                    row_counter+=1
+                    current_row = int(x)
+                    if b==len(beamlet_override)-1 and row_counter<CP.num_rows-1:
+                        break_bool=True
+                        break
+
+                    self.left_leaf_position[row_counter] = int(CP.field_position[beamlet_override[b]][1])
+                    print current_row
+                    print self.left_leaf_position
+                    print self.right_leaf_position
+
+            # todo fix this conversion to something normal
+            if not break_bool:
+                self.right_leaf_position[row_counter] = int(CP.field_position[beamlet_override[-1]][1])+1
 
         else:
             self.left_leaf_position = aper_left_pos[:]
