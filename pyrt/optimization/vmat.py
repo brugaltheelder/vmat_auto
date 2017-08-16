@@ -253,6 +253,9 @@ class vmat_mip(model_base):
         self.m.optimize()
 
         # save apertures (or the indices of apertures) of solution
+        for cp in range(self.data.num_control_points):
+            for a in range(len(self.apertures_per_cp[cp])):
+                self.apertures_per_cp[cp][a].intensity = self.aper_intensity_var[cp][a].x
 
         for s in range(len(self.data.structures)):
             for v in range(self.data.structures[s].num_vox):

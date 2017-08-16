@@ -62,11 +62,6 @@ def plot_fluence_map(fluence):
 
     pass
 
-def is_adjacent(aper_L, aper_R, distance_limit):
-    # for each row, check if L and R leafs are within distance limit
-    pass
-
-
 def plot_fluence_map(data, CP, beamlet_intensities, tight_bool=False, save_bool=False, save_name='aper_', buffer=1):
     relevant_beamlets = range(CP.initial_beamlet_index, CP.final_beamlet_index)
 
@@ -96,12 +91,13 @@ def plot_fluence_map(data, CP, beamlet_intensities, tight_bool=False, save_bool=
 
 
 
-def plot_aper(aper, data, aper_number, tight_bool=False, save_bool=False, save_name='aper_', buffer=1):
+def plot_aper(aper, data, aper_ID = '', tight_bool=False, save_bool=False, save_name='aper', buffer=1):
     relevant_beamlets = np.array(aper.beamlet_members[:]) - data.control_points[aper.cp_number].initial_beamlet_index
     fluence_map = np.zeros(data.control_points[aper.cp_number].field.shape)
     for r in relevant_beamlets:
         x, y = tuple(data.control_points[aper.cp_number].field_position[r, :])
-        fluence_map[x, y] = 1.
+
+        fluence_map[int(x), int(y)] = aper.intensity
     plt.figure()
 
     if tight_bool:
@@ -115,16 +111,20 @@ def plot_aper(aper, data, aper_number, tight_bool=False, save_bool=False, save_n
             os.makedirs(data.input_dict['cwd'] + data.input_dict['figure_directory'])
 
         plt.savefig(
-            data.input_dict['cwd'] + data.input_dict['figure_directory'] + save_name + '_' + str(aper_number) + '.png',
+            data.input_dict['cwd'] + data.input_dict['figure_directory'] + save_name + '_' + aper_ID + '.png',
             bbox_inches='tight')
 
 
 def bounding_box(img, buffer = 1):
 
+
     rows = np.any(img, axis=1)
     cols = np.any(img, axis=0)
-    rmin, rmax = np.where(rows)[0][[0, -1]]
-    cmin, cmax = np.where(cols)[0][[0, -1]]
+    rmin,rmax = 0,img.shape[0]
+    cmin, cmax = 0, img.shape[1]
+    if np.max(img)>0:
+        rmin, rmax = np.where(rows)[0][[0, -1]]
+        cmin, cmax = np.where(cols)[0][[0, -1]]
 
     rmin = max(0,rmin-buffer)
     rmax = min(img.shape[0],rmax+buffer+1)
@@ -132,3 +132,11 @@ def bounding_box(img, buffer = 1):
     cmax = min(img.shape[1], cmax + buffer+1)
 
     return rmin, rmax, cmin, cmax
+
+def plot_all_selected_apertures(model):
+    # Print out aperture shapes
+    for cp in range(model.data.num_control_points - 1):
+        for a in range(len(model.apertures_per_cp[cp])):
+            if model.aper_binary_var[cp][a].x == 1:
+                plot_aper(model.apertures_per_cp[cp][a], model.data, '{}_{}'.format(cp, a), save_bool=True,
+                          tight_bool=True, buffer=2)

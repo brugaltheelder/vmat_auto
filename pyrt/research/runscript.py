@@ -30,6 +30,8 @@ input_dict = {
 #Run individual case
 
 # Load patient information
-input_dict['filename'] = 'Prostate_VMAT_306.mat'
+input_dict['filename'] = 'Prostate_VMAT_101.mat'
+input_dict['case_directory'] = input_dict['filename'][0:-4]
+
 
 run_case(input_dict)
