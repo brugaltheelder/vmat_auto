@@ -92,39 +92,51 @@ class aperture(object):
             self.right_leaf_position = [CP.left_leaf_position[r] + CP.width_per_row[r] for r in range(CP.num_rows)]
             self.intensity = 1.
         elif beamlet_override is not None:
+            dummy_field = np.zeros_like(CP.field)
+            beamlet_counter = 1
+            for b in beamlet_override:
+                dummy_field[CP.field_position[b][0],CP.field_position[b][1]] = beamlet_counter
+                beamlet_counter+=1
+            self.build_leaf_metadata(dummy_field,CP)
+            self .intensity = aper_intensity
 
 
-            row_counter = 0
-            self.left_leaf_position = [int((CP.left_leaf_position[r]+CP.width_per_row[r])/2 ) for r in range(CP.num_rows)]
-            self.right_leaf_position = [int((CP.left_leaf_position[r]+CP.width_per_row[r])/2 ) for r in range(CP.num_rows)]
-            self.intensity = aper_intensity
-            current_row = int(CP.field_position[beamlet_override[0]][0])
-            self.left_leaf_position[0] = int(CP.field_position[beamlet_override[0]][1])
-            print current_row
-            print self.left_leaf_position
-            print self.right_leaf_position
-            total_beamlets = 0
-            break_bool = False
-            for b in range(1,len(beamlet_override)):
+        #
+        # elif beamlet_override is not None and False:
+        #
+        #
+        #     row_counter = 0
+        #     self.left_leaf_position = [int((CP.left_leaf_position[r]+CP.width_per_row[r])/2 ) for r in range(CP.num_rows)]
+        #     self.right_leaf_position = [int((CP.left_leaf_position[r]+CP.width_per_row[r])/2 ) for r in range(CP.num_rows)]
+        #     self.intensity = aper_intensity
+        #     current_row = int(CP.field_position[beamlet_override[0]][0])
+        #     self.left_leaf_position[0] = int(CP.field_position[beamlet_override[0]][1])
+        #     print current_row
+        #     print self.left_leaf_position
+        #     print self.right_leaf_position
+        #     total_beamlets = 0
+        #     break_bool = False
+        #     for b in range(1,len(beamlet_override)):
+        #
+        #         x,y = tuple(CP.field_position[beamlet_override[b]])
+        #
+        #         if int(x)>current_row:
+        #             self.right_leaf_position[row_counter] = int(CP.field_position[beamlet_override[b - 1]][1]) + 1
+        #             row_counter+=1
+        #             current_row = int(x)
+        #             if b==len(beamlet_override)-1 and row_counter<CP.num_rows-1:
+        #                 break_bool=True
+        #                 break
+        #
+        #             self.left_leaf_position[row_counter] = int(CP.field_position[beamlet_override[b]][1])
+        #             print current_row
+        #             print self.left_leaf_position
+        #             print self.right_leaf_position
+        #
+        #     # todo fix this conversion to something normal
+        #     if not break_bool:
+        #         self.right_leaf_position[row_counter] = int(CP.field_position[beamlet_override[-1]][1])+1
 
-                x,y = tuple(CP.field_position[beamlet_override[b]])
-
-                if int(x)>current_row:
-                    self.right_leaf_position[row_counter] = int(CP.field_position[beamlet_override[b - 1]][1]) + 1
-                    row_counter+=1
-                    current_row = int(x)
-                    if b==len(beamlet_override)-1 and row_counter<CP.num_rows-1:
-                        break_bool=True
-                        break
-
-                    self.left_leaf_position[row_counter] = int(CP.field_position[beamlet_override[b]][1])
-                    print current_row
-                    print self.left_leaf_position
-                    print self.right_leaf_position
-
-            # todo fix this conversion to something normal
-            if not break_bool:
-                self.right_leaf_position[row_counter] = int(CP.field_position[beamlet_override[-1]][1])+1
 
         else:
             self.left_leaf_position = aper_left_pos[:]
@@ -132,6 +144,23 @@ class aperture(object):
             self.intensity = aper_intensity
 
         self.build_Dkj(CP, data)
+
+
+    def build_leaf_metadata(self,field,CP):
+        self.left_leaf_position = []
+        self.right_leaf_position = []
+
+
+        for row in CP.row_array:
+
+            if len(np.where(field[row][:] > 0)[0])>0:
+                self.left_leaf_position.append(int(np.where(field[row][:] > 0)[0][0]))
+                self.right_leaf_position.append(int(np.where(field[row][:] > 0)[0][-1]))
+            else:
+                self.left_leaf_position.append(int(field.shape[1]/2))
+                self.right_leaf_position.append(int(field.shape[1]/ 2))
+
+
 
     def build_Dkj(self, CP, data):
         assert (isinstance(CP, control_point_vmat))

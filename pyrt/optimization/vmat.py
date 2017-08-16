@@ -8,7 +8,7 @@ from pyrt.tools import *
 from pyrt.optimization.model import *
 from pyrt.optimization.tools import *
 
-import gurobipy as grb
+# import gurobipy as grb
 
 
 class conformal_arc(model_base):
