@@ -42,6 +42,6 @@ def run_case(input_dict):
     model.plot_DVH(run_tag=input_dict['filename'], saveDVH=True, num_bins=500)
 
     #Print out aperture shapes
-    plot_all_selected_apertures()
+    plot_all_selected_apertures(model)
 
     print_in_box('Finished Running {}'.format(input_dict['filename']),1)
