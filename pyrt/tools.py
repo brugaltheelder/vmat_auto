@@ -103,7 +103,7 @@ def plot_fluence_map(data, CP, beamlet_intensities, tight_bool=False, save_bool=
 
 
 
-def plot_aper(aper, data, aper_ID = '', tight_bool=False, save_bool=False, save_name='_aper', buffer=1, specific_directory = None, max_intensity=None):
+def plot_aper(aper, data, aper_ID = '', tight_bool=False, save_bool=False, save_name='aper', buffer=1, specific_directory = None, max_intensity=None):
     relevant_beamlets = np.array(aper.beamlet_members[:]) - data.control_points[aper.cp_number].initial_beamlet_index
     fluence_map = np.zeros(data.control_points[aper.cp_number].field.shape)
     for r in relevant_beamlets:
