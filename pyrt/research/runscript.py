@@ -13,7 +13,8 @@ vmat_model_params = {
     'max_intensity':1000.,
     'min_intensity': 0.,
     'aper_limit': 1.,
-    'max_distance_per_cp': 100
+    'max_distance_per_cp': 100,
+    'cp_redundancy': 1
 }
 
 
@@ -23,7 +24,8 @@ input_dict = {
     'figure_directory':working_directory,
     'filename': None,
     'Rx': {'PTV': 79.56, 'PTV Vesicles': 72.2},
-    'model_params':vmat_model_params
+    'model_params':vmat_model_params,
+
 }
 
 

@@ -116,7 +116,7 @@ class vmat_mip(model_base):
 
         self.apertures_per_cp = [[] for cp in range(self.data.num_control_points)]
 
-        self.build_apertures()
+        self.build_apertures(aper_types_list=self.data.input_dict['aper_types_list'])
 
         if build_model:
             self.build_model()
