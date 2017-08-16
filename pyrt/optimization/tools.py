@@ -37,16 +37,37 @@ def is_connected(aperture1, aperture2, max_distance_per_cp):
         return False
 
 
-def aper_gen_given_dose(dose_per_struct, data, CP):
-    # todo troy write this function
+def gen_weighted_mask(dose_per_struct, data):
+    target_mask = [np.zeros(data.structures[s].num_vox) for s in range(len(data.structures))]
+    for s in range(len(data.structures)):
 
-    return None
+        if data.structures[s].name in dose_per_struct.keys():
+            factor = 1.
+            if data.structures[s].is_target:
+                factor = -1.
+
+            target_mask[s] = factor * dose_per_struct[data.structures[s].name] * np.ones(data.structures[s].num_vox) / \
+                             data.structures[s].num_vox
+    return target_mask
+
+def aper_gen_given_dose(dose_per_struct, data, CP, mask=None):
+    if mask is not None:
+        target_mask = mask
+    else:
+        target_mask = gen_weighted_mask(dose_per_struct,data)
+
+    beamlet_usefulness = np.zeros(CP.number_beamlets)
+
+    for s in range(len(data.structures)):
+        beamlet_usefulness += data.structures[s].Dij[np.arange(CP.initial_beamlet_index,CP.final_beamlet_index)].dot(target_mask[s])
+
+    value, beamlets = pricing_problem_beam_aper(CP,beamlet_usefulness)
+
+    return aperture(data,CP,beamlet_override=beamlets)
 
 
-def get_aper_from_beamlets():
-    pass
 
-def gen_aper_from_back_proj():
+def gen_aper_from_back_proj(CP,weighting_dict):
     pass
 
 
