@@ -103,7 +103,7 @@ def plot_fluence_map(data, CP, beamlet_intensities, tight_bool=False, save_bool=
 
 
 
-def plot_aper(aper, data, aper_ID = '', tight_bool=False, save_bool=False, save_name='aper', buffer=1, specific_directory = None, max_intensity=None):
+def plot_aper(aper, data, aper_ID = '', tight_bool=False, save_bool=False, save_name='_aper', buffer=1, specific_directory = None, max_intensity=None):
     relevant_beamlets = np.array(aper.beamlet_members[:]) - data.control_points[aper.cp_number].initial_beamlet_index
     fluence_map = np.zeros(data.control_points[aper.cp_number].field.shape)
     for r in relevant_beamlets:
@@ -162,4 +162,4 @@ def plot_all_selected_apertures(model):
         for a in range(len(model.apertures_per_cp[cp])):
             if model.aper_binary_var[cp][a].x == 1:
                 plot_aper(model.apertures_per_cp[cp][a], model.data, '{}_{}'.format(cp, a), save_bool=True,
-                          tight_bool=True, buffer=2)
+                          tight_bool=True, buffer=2, specific_directory =model.data.input_dict['case_directory'], max_intensity=model.model_params['max_intensity'])
