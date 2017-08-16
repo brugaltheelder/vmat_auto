@@ -12,7 +12,8 @@ vmat_model_params = {
     'oar_weights':{'Rectum':10., 'Bladder':10., 'default':1.},
     'max_intensity':1000.,
     'min_intensity': 0.,
-    'aper_limit': 1.
+    'aper_limit': 1.,
+    'max_distance_per_cp': 100
 }
 
 

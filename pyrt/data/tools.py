@@ -99,9 +99,6 @@ class control_point_vmat(object):
 
                 beamlet_counter+=1
 
-
-
-
     def build_leaf_metadata(self,field):
         self.left_leaf_position = []
         self.left_leaf_index = []
