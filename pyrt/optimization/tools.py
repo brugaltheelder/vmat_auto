@@ -43,6 +43,35 @@ def aper_gen_given_dose(dose_per_struct, data, CP):
     return None
 
 
+def pricingProblemBeamMLC(self,CP,beamlet_gradient):
+    beamlets = []
+    beamlet_counter = 0
+    worth = 0
+    assert(isinstance(CP,control_point_vmat))
+    # for each row
+    for r in range(CP.num_rows):
+        for i in range(self.left_leaf_position[r], self.right_leaf_position[r]):
+            self.beamlet_members.append(
+                CP.initial_beamlet_index + CP.left_leaf_index[r] + (i - CP.left_leaf_position[r]))
+
+    for r in range(CP.num_rows):
+        maxSoFar, maxEndingHere, lE, rE, = 0, 0, CP.left_leaf_position[r], CP.left_leaf_position[r]
+        for i in range(CP.width_per_row[r]):
+            maxEndingHere += beamlet_gradient[i+CP.left_leaf_index[r]]
+            if maxEndingHere>0:
+                maxEndingHere,lE, rE = 0, i+1, i+1
+            if maxSoFar>maxEndingHere:
+                maxSoFar, rE = maxEndingHere, i+1
+            beamlet_counter+=1
+        for i in range(lE,rE):
+            beamlets.append(i+CP.left_leaf_index[r])
+        worth += maxSoFar
+    return worth, beamlets
+
+
+
+
+
 class aperture(object):
     def __init__(self, data, CP, aper_left_pos=[], aper_right_pos=[], aper_intensity=1., set_open_aper=False,
                  beamlet_override=None):
@@ -59,7 +88,6 @@ class aperture(object):
         elif beamlet_override is not None:
             # todo troy beamlet override
             pass
-
 
         else:
             self.left_leaf_position = aper_left_pos[:]

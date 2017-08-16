@@ -39,8 +39,8 @@ class model_base(object):
         self.dose_dict[run_tag] = [np.copy(self.current_dose_per_structure[s]) for s in range(len(self.data.structures))]
 
 
-    def plot_DVH(self, saveName='', showPlots=False, saveDVH=False, run_tag=None,num_bins = 100):
-        plot_DVH(self, saveName=saveName,showPlots=showPlots,saveDVH=saveDVH, run_tag=run_tag,num_bins=500)
+    def plot_DVH(self, saveName='', showPlots=False, saveDVH=False, run_tag=None,num_bins = 100, specific_directory=None):
+        plot_DVH(self, saveName=saveName,showPlots=showPlots,saveDVH=saveDVH, run_tag=run_tag,num_bins=500,specific_directory=specific_directory)
 
 
     def serialize_dose(self):
