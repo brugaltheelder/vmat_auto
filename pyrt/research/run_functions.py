@@ -31,17 +31,17 @@ def run_all(case,input_dict):
 
 def run_case(input_dict):
 
-    print_in_box('Now Running {}'.format(input_dict['filename']),1)
+    print_in_box('Now Running {}'.format(input_dict['filename'][0:-4]),1)
     # build model object
     model = vmat_mip(input_dict)
 
     # do stuff (optimize)
-    model.optimize(run_tag=input_dict['filename'])
+    model.optimize(run_tag=input_dict['filename'][0:-4])
 
     # print out DVH
-    model.plot_DVH(run_tag=input_dict['filename'], saveDVH=True, num_bins=500)
+    model.plot_DVH(run_tag=input_dict['filename'][0:-4], saveDVH=True, num_bins=500, specific_directory =model.data.input_dict['case_directory'])
 
     #Print out aperture shapes
     plot_all_selected_apertures(model)
 
-    print_in_box('Finished Running {}'.format(input_dict['filename']),1)
+    print_in_box('Finished Running {}'.format(input_dict['filename'][0:-4]),1)

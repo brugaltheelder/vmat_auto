@@ -167,4 +167,4 @@ def plot_all_selected_apertures(model):
         for a in range(len(model.apertures_per_cp[cp])):
             if model.aper_binary_var[cp][a].x == 1:
                 plot_aper(model.apertures_per_cp[cp][a], model.data, '{}_{}'.format(cp, a), save_bool=True,
-                          tight_bool=True, buffer=2)
+                          tight_bool=True, buffer=2, specific_directory =model.data.input_dict['case_directory'], max_intensity=model.model_params['max_intensity'])

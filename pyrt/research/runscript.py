@@ -31,7 +31,7 @@ input_dict = {
 
 # Load patient information
 input_dict['filename'] = 'Prostate_VMAT_101.mat'
-input_dict['case_directory'] = input_dict['filename'][0:-4]
+input_dict['case_directory'] = input_dict['filename'][0:-4]+'/'
 
 
 run_case(input_dict)
