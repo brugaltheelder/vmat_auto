@@ -20,7 +20,7 @@ def print_structure_info(data):
         print s.name,s.rx, s.num_vox, s.num_beamlets, s.is_target, s.Dij.shape
         print '-'*20
 
-def plot_DVH(model, saveName='', showPlots=False, saveDVH=False, run_tag=None,num_bins = 500):
+def plot_DVH(model, saveName='', showPlots=False, saveDVH=False, run_tag=None,num_bins = 500,specific_directory = None):
     if run_tag is not None:
         dose_per_struct = [np.copy(model.dose_dict[run_tag][s]) for s in range(len(model.data.structures))]
         run_label = run_tag
@@ -28,7 +28,7 @@ def plot_DVH(model, saveName='', showPlots=False, saveDVH=False, run_tag=None,nu
         dose_per_struct = [np.copy(model.current_dose_per_structure[s]) for s in range(len(model.data.structures))]
         run_label='current'
 
-    plt.clf()
+
     for s in range(len(model.data.structures)):
 
         hist, bins = np.histogram(dose_per_struct[s], bins=num_bins)
@@ -43,17 +43,21 @@ def plot_DVH(model, saveName='', showPlots=False, saveDVH=False, run_tag=None,nu
 
     plt.gca().set_xlim(left=0.)
     plt.gca().set_ylim(bottom=0., top=1.)
+    if specific_directory is not None:
+        spec_dir = specific_directory
+
 
 
     if len(saveName) > 1 or saveDVH:
 
-        if not os.path.exists(model.data.input_dict['cwd'] + model.data.input_dict['figure_directory']):
-            os.makedirs(model.data.input_dict['cwd'] + model.data.input_dict['figure_directory'])
+        if not os.path.exists(model.data.input_dict['cwd'] + model.data.input_dict['figure_directory']+ spec_dir):
+            os.makedirs(model.data.input_dict['cwd'] + model.data.input_dict['figure_directory']+ spec_dir)
 
-        plt.savefig(model.data.input_dict['cwd'] + model.data.input_dict['figure_directory'] + 'dvh_' + saveName + '_' + run_label + '.png',
+        plt.savefig(model.data.input_dict['cwd'] + model.data.input_dict['figure_directory']+ spec_dir + 'dvh_' + saveName + '_' + run_label + '.png',
                     bbox_extra_artists=(lgd,), bbox_inches='tight')
     if showPlots:
         plt.show()
+
 
 def plot_fluence(model,saveName='', showPlots=False, saveDVH=False, run_tag=None, aperture_list = []):
     pass
@@ -62,7 +66,7 @@ def plot_fluence_map(fluence):
 
     pass
 
-def plot_fluence_map(data, CP, beamlet_intensities, tight_bool=False, save_bool=False, save_name='aper_', buffer=1):
+def plot_fluence_map(data, CP, beamlet_intensities, tight_bool=False, save_bool=False, save_name='aper_', buffer=1, specific_directory=None, max_intensity=None):
     relevant_beamlets = range(CP.initial_beamlet_index, CP.final_beamlet_index)
 
     fluence_map = np.zeros(data.control_points[CP.cp_number].field.shape)
@@ -73,46 +77,65 @@ def plot_fluence_map(data, CP, beamlet_intensities, tight_bool=False, save_bool=
         fluence_map[int(x), int(y)] = beamlet_intensities[r]
     plt.figure()
 
+    spec_dir = ''
+    if specific_directory is not None:
+        spec_dir = specific_directory
+
+    vmax_value = np.max(fluence_map)
+    if max_intensity is not None:
+        vmax_value = max_intensity
 
 
     if tight_bool or np.min(fluence_map) > 0:
         rmin, rmax, cmin, cmax = bounding_box(fluence_map, buffer=buffer)
-        sns.heatmap(fluence_map[rmin:rmax, cmin:cmax])
+        sns.heatmap(fluence_map[rmin:rmax, cmin:cmax], vmax = vmax_value)
     else:
-        sns.heatmap(fluence_map)
+        sns.heatmap(fluence_map, vmax = vmax_value)
 
     if save_bool:
-        if not os.path.exists(data.input_dict['cwd'] + data.input_dict['figure_directory']):
-            os.makedirs(data.input_dict['cwd'] + data.input_dict['figure_directory'])
+        if not os.path.exists(data.input_dict['cwd'] + data.input_dict['figure_directory']+ spec_dir) :
+            os.makedirs(data.input_dict['cwd'] + data.input_dict['figure_directory']+ spec_dir)
 
         plt.savefig(
-            data.input_dict['cwd'] + data.input_dict['figure_directory'] + save_name + '_' + str(CP.cp_number) + '.png',
+            data.input_dict['cwd'] + data.input_dict['figure_directory'] + spec_dir + save_name + '_' + str(CP.cp_number) + '.png',
             bbox_inches='tight')
+    plt.close()
 
 
 
-def plot_aper(aper, data, aper_ID = '', tight_bool=False, save_bool=False, save_name='aper', buffer=1):
+def plot_aper(aper, data, aper_ID = '', tight_bool=False, save_bool=False, save_name='aper', buffer=1, specific_directory = None, max_intensity=None):
     relevant_beamlets = np.array(aper.beamlet_members[:]) - data.control_points[aper.cp_number].initial_beamlet_index
     fluence_map = np.zeros(data.control_points[aper.cp_number].field.shape)
     for r in relevant_beamlets:
         x, y = tuple(data.control_points[aper.cp_number].field_position[r, :])
-
         fluence_map[int(x), int(y)] = aper.intensity
+
+    vmax_value = np.max(fluence_map)
+    if max_intensity is not None:
+        vmax_value = max_intensity
+
+
+
     plt.figure()
 
     if tight_bool:
         rmin, rmax, cmin, cmax = bounding_box(fluence_map, buffer=buffer)
-        sns.heatmap(fluence_map[rmin:rmax, cmin:cmax])
+        sns.heatmap(fluence_map[rmin:rmax, cmin:cmax],vmax = vmax_value)
     else:
-        sns.heatmap(fluence_map)
+        sns.heatmap(fluence_map, vmax = vmax_value)
+
+    spec_dir = ''
+    if specific_directory is not None:
+        spec_dir = specific_directory
 
     if save_bool:
-        if not os.path.exists(data.input_dict['cwd'] + data.input_dict['figure_directory']):
-            os.makedirs(data.input_dict['cwd'] + data.input_dict['figure_directory'])
+        if not os.path.exists(data.input_dict['cwd'] + data.input_dict['figure_directory']+ spec_dir):
+            os.makedirs(data.input_dict['cwd'] + data.input_dict['figure_directory']+ spec_dir)
 
         plt.savefig(
-            data.input_dict['cwd'] + data.input_dict['figure_directory'] + save_name + '_' + aper_ID + '.png',
+            data.input_dict['cwd'] + data.input_dict['figure_directory']+ spec_dir + save_name + '_' + aper_ID + '.png',
             bbox_inches='tight')
+    plt.close()
 
 
 def bounding_box(img, buffer = 1):
