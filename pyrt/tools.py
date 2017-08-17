@@ -169,7 +169,7 @@ def bounding_box(img, buffer = 1):
 
 def plot_all_selected_apertures(model):
     # Print out aperture shapes
-    for cp in range(model.data.num_control_points - 1):
+    for cp in range(model.data.num_control_points):
         for a in range(len(model.apertures_per_cp[cp])):
             if model.aper_binary_var[cp][a].x == 1:
                 plot_aper(model.apertures_per_cp[cp][a], model.data, '{}_{}'.format(cp, a), save_bool=True,

@@ -136,9 +136,6 @@ class vmat_mip(model_base):
             for cp in range(self.data.num_control_points):
                 self.apertures_per_cp[cp].append(aperture(self.data, self.data.control_points[cp], set_open_aper=True))
 
-        if 'megaperture' in aper_types_list:
-            print 'MEGA APERTURE'
-
         if 'back_proj' in aper_types_list and len(self.model_params['back_projection_dicts'])>0:
 
             for aper_proj_dict in self.model_params['back_projection_dicts']:
@@ -269,12 +266,15 @@ class vmat_mip(model_base):
 
     def optimize(self, run_tag=None):  # probably need some inputs/default params like in IMRT one
 
+
+        start = time()
         if run_tag is not None:
             self.run_title = run_tag
 
         # write optimization code here, then some data extraction)
         self.m.optimize()
 
+        print '{} model solved in {} seconds'.format(self.modality, time() - start)
         # save apertures (or the indices of apertures) of solution
         for cp in range(self.data.num_control_points):
             for a in range(len(self.apertures_per_cp[cp])):

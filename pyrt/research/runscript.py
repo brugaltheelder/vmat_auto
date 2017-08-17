@@ -19,28 +19,28 @@ vmat_model_params = {
     'target_weights':{'PTV':1000., 'default':500.},
     'oar_weights':{'Rectum':10., 'Bladder':10., 'default':1.},
     'max_intensity':1000.,
-    'min_intensity': 0.,
+    'min_intensity': 1.,
     'aper_limit': 1.,
     'max_distance_per_cp': 100,
-    'cp_redundancy': 1
+    'cp_redundancy': 4,
+    'back_projection_dicts':back_proj_list_of_dicts
 }
 
 
 input_dict = {
     'cwd': cwd,
     'figure_directory':working_directory,
-    'aper_types_list': ['open','back_proj'],
+    'aper_types_list': ['back_proj'],
     'filename': None,
     'Rx': {'PTV': 79.56, 'PTV Vesicles': 72.2},
-    'model_params':vmat_model_params,
-
+    'model_params':vmat_model_params
 }
 
 
 #Run individual case
 
 # Load patient information
-input_dict['filename'] = 'Prostate_VMAT_101.mat'
+input_dict['filename'] = 'Prostate_VMAT_102.mat'
 input_dict['case_directory'] = input_dict['filename'][0:-4]+'/'
 
 
