@@ -8,7 +8,7 @@ from pyrt.tools import *
 from pyrt.optimization.model import *
 from pyrt.optimization.tools import *
 
-# import gurobipy as grb
+import gurobipy as grb
 
 
 class conformal_arc(model_base):
@@ -40,8 +40,8 @@ class conformal_arc(model_base):
     def generate_apertures(self):
 
         for aper_proj_dict in self.model_params['back_projection_dicts']:
+            dose_mask = gen_weighted_mask(aper_proj_dict, self.data)
             for c in range(self.data.num_control_points):
-                dose_mask = gen_weighted_mask(aper_proj_dict,self.data)
                 self.apertures.append(aper_gen_given_dose(aper_proj_dict,self.data, self.data.control_points[c],   mask=dose_mask))
 
         self.num_apers = len(self.apertures)
@@ -138,6 +138,16 @@ class vmat_mip(model_base):
 
         if 'megaperture' in aper_types_list:
             print 'MEGA APERTURE'
+
+        if 'back_proj' in aper_types_list and len(self.model_params['back_projection_dicts'])>0:
+
+            for aper_proj_dict in self.model_params['back_projection_dicts']:
+                dose_mask = gen_weighted_mask(aper_proj_dict, self.data)
+                for cp in range(self.data.num_control_points):
+                    self.apertures_per_cp[cp].append(
+                        aper_gen_given_dose(aper_proj_dict, self.data, self.data.control_points[cp], mask=dose_mask))
+
+
 
 
 

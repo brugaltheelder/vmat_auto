@@ -126,6 +126,7 @@ def plot_aper(aper, data, aper_ID = '', tight_bool=False, save_bool=False, save_
     plt.figure()
 
     if tight_bool:
+
         rmin, rmax, cmin, cmax = bounding_box(fluence_map, buffer=buffer)
         sns.heatmap(fluence_map[rmin:rmax, cmin:cmax],vmax = vmax_value)
     else:
