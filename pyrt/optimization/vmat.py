@@ -20,8 +20,9 @@ class conformal_arc(model_base):
         self.num_apers = self.data.num_control_points
 
         self.apertures = []
-        self.build_model()
         self.generate_apertures()
+        self.build_model()
+
 
     def build_model(self, target_weights_label='target_weights', oar_weights_label='oar_weights'):
         # variables
@@ -37,14 +38,21 @@ class conformal_arc(model_base):
         save_weights_from_input_dict(self)
 
     def generate_apertures(self):
-        for a in range(self.num_apers):
-            self.apertures.append(aperture(self.data, self.data.control_points[a], set_open_aper=True))
+
+        for aper_proj_dict in self.model_params['back_projection_dicts']:
+            for c in range(self.data.num_control_points):
+                dose_mask = gen_weighted_mask(aper_proj_dict,self.data)
+                self.apertures.append(aper_gen_given_dose(aper_proj_dict,self.data, self.data.control_points[c],   mask=dose_mask))
+
+        self.num_apers = len(self.apertures)
+
+
 
     def optimize(self, startingX=None, UB=None, display=False, ftol=1e-5, gtol=1e-5):
         if startingX is not None:
             x0 = np.copy(startingX)
         else:
-            x0 = np.zeros(self.num_apers)
+            x0 = np.ones(self.num_apers)
 
         print 'Solver Starting...'
         start = time()
@@ -75,7 +83,7 @@ class conformal_arc(model_base):
             for a in range(len(self.apertures)):
                 for s in range(len(self.data.structures)):
                     self.current_dose_per_structure[s] += self.apertures[a].Dkj_per_structure[s] * self.apertures[
-                        s].intensity
+                        a].intensity
 
     def get_obj_update_zhat(self):
         obj = 0.

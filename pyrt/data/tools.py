@@ -91,7 +91,7 @@ class control_point_vmat(object):
             print "ERROR: NOT ALL BEAMLETS COUNTED or GAPS IN FLUENCE MAP"
 
     def build_spatial_metadata(self,field):
-        self.field_position =  np.zeros((self.number_beamlets,2))
+        self.field_position =  np.zeros((self.number_beamlets,2),dtype=np.int32)
         beamlet_counter = 0
         for r in range(self.num_rows):
             for i in range(self.width_per_row[r]):

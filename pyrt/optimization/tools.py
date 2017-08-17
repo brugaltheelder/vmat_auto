@@ -30,15 +30,16 @@ def is_connected(aperture1, aperture2, max_distance_per_cp):
     var = abs(aperture1.cp_number - aperture2.cp_number) * max_distance_per_cp
     if all([abs(aperture1.left_leaf_position[r] - aperture2.left_leaf_position[r]) <= var for r in
             range(total_rows)]) and all(
-            [abs(aperture1.right_leaf_position[r] - aperture1.right_leaf_position[r]) <= var for r in
-             range(total_rows)]):
+        [abs(aperture1.right_leaf_position[r] - aperture1.right_leaf_position[r]) <= var for r in
+         range(total_rows)]):
         return True
     else:
         return False
 
 
 def gen_weighted_mask(dose_per_struct, data):
-    target_mask = [np.zeros(data.structures[s].num_vox) for s in range(len(data.structures))]
+    target_mask = [np.ones(data.structures[s].num_vox) * dose_per_struct['default'] for s in
+                   range(len(data.structures))]
     for s in range(len(data.structures)):
 
         if data.structures[s].name in dose_per_struct.keys():
@@ -50,51 +51,50 @@ def gen_weighted_mask(dose_per_struct, data):
                              data.structures[s].num_vox
     return target_mask
 
+
 def aper_gen_given_dose(dose_per_struct, data, CP, mask=None):
     if mask is not None:
         target_mask = mask
     else:
-        target_mask = gen_weighted_mask(dose_per_struct,data)
+        target_mask = gen_weighted_mask(dose_per_struct, data)
 
     beamlet_usefulness = np.zeros(CP.number_beamlets)
 
     for s in range(len(data.structures)):
-        beamlet_usefulness += data.structures[s].Dij[np.arange(CP.initial_beamlet_index,CP.final_beamlet_index)].dot(target_mask[s])
+        beamlet_usefulness += data.structures[s].Dij[np.arange(CP.initial_beamlet_index, CP.final_beamlet_index)].dot(
+            target_mask[s])
 
-    value, beamlets = pricing_problem_beam_aper(CP,beamlet_usefulness)
+    value, beamlets = pricing_problem_beam_aper(CP, beamlet_usefulness)
 
-    return aperture(data,CP,beamlet_override=beamlets)
+    return aperture(data, CP, beamlet_override=beamlets)
 
 
-
-def gen_aper_from_back_proj(CP,weighting_dict):
+def gen_aper_from_back_proj(CP, weighting_dict):
     pass
 
 
-
-def pricing_problem_beam_aper(CP,beamlet_gradient):
+def pricing_problem_beam_aper(CP, beamlet_gradient, threshold=0.):
     beamlets = []
 
+    # todo implement thresholding?
+
     worth = 0
-    assert(isinstance(CP,control_point_vmat))
+    assert (isinstance(CP, control_point_vmat))
     # for each row
     for r in range(CP.num_rows):
-        maxSoFar, maxEndingHere, lE, rE, = 0, 0, 0,0
+        maxSoFar, maxEndingHere, lE, rE, = 0, 0, 0, 0
         for i in range(CP.width_per_row[r]):
-            maxEndingHere += beamlet_gradient[i+CP.left_leaf_index[r]]
-            if maxEndingHere>0:
-                maxEndingHere,lE, rE = 0, i+1, i+1
-            if maxSoFar>maxEndingHere:
-                maxSoFar, rE = maxEndingHere, i+1
+            maxEndingHere += beamlet_gradient[i + CP.left_leaf_index[r]]
+            if maxEndingHere > 0:
+                maxEndingHere, lE, rE = 0, i + 1, i + 1
+            if maxSoFar > maxEndingHere:
+                maxSoFar, rE = maxEndingHere, i + 1
 
-        for i in range(lE,rE):
-            beamlets.append(i+CP.left_leaf_index[r])
+        for i in range(lE, rE):
+            beamlets.append(i + CP.left_leaf_index[r])
 
         worth += maxSoFar
     return worth, beamlets
-
-
-
 
 
 class aperture(object):
@@ -116,10 +116,10 @@ class aperture(object):
             dummy_field = np.zeros_like(CP.field)
             beamlet_counter = 1
             for b in beamlet_override:
-                dummy_field[CP.field_position[b][0],CP.field_position[b][1]] = beamlet_counter
-                beamlet_counter+=1
-            self.build_leaf_metadata(dummy_field,CP)
-            self .intensity = aper_intensity
+                dummy_field[CP.field_position[int(b)][0], CP.field_position[int(b)][1]] = beamlet_counter
+                beamlet_counter += 1
+            self.build_leaf_metadata(dummy_field, CP)
+            self.intensity = aper_intensity
 
 
         #
@@ -166,22 +166,18 @@ class aperture(object):
 
         self.build_Dkj(CP, data)
 
-
-    def build_leaf_metadata(self,field,CP):
+    def build_leaf_metadata(self, field, CP):
         self.left_leaf_position = []
         self.right_leaf_position = []
 
-
         for row in CP.row_array:
 
-            if len(np.where(field[row][:] > 0)[0])>0:
+            if len(np.where(field[row][:] > 0)[0]) > 0:
                 self.left_leaf_position.append(int(np.where(field[row][:] > 0)[0][0]))
                 self.right_leaf_position.append(int(np.where(field[row][:] > 0)[0][-1]))
             else:
-                self.left_leaf_position.append(int(field.shape[1]/2))
-                self.right_leaf_position.append(int(field.shape[1]/ 2))
-
-
+                self.left_leaf_position.append(int(field.shape[1] / 2))
+                self.right_leaf_position.append(int(field.shape[1] / 2))
 
     def build_Dkj(self, CP, data):
         assert (isinstance(CP, control_point_vmat))

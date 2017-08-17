@@ -43,12 +43,16 @@ def plot_DVH(model, saveName='', showPlots=False, saveDVH=False, run_tag=None,nu
 
     plt.gca().set_xlim(left=0.)
     plt.gca().set_ylim(bottom=0., top=1.)
+
+    spec_dir = ''
     if specific_directory is not None:
         spec_dir = specific_directory
 
 
 
     if len(saveName) > 1 or saveDVH:
+
+
 
         if not os.path.exists(model.data.input_dict['cwd'] + model.data.input_dict['figure_directory']+ spec_dir):
             os.makedirs(model.data.input_dict['cwd'] + model.data.input_dict['figure_directory']+ spec_dir)
