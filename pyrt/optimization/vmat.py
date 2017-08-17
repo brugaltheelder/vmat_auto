@@ -42,7 +42,7 @@ class conformal_arc(model_base):
         for aper_proj_dict in self.model_params['back_projection_dicts']:
             dose_mask = gen_weighted_mask(aper_proj_dict, self.data)
             for c in range(self.data.num_control_points):
-                self.apertures.append(aper_gen_given_dose(aper_proj_dict,self.data, self.data.control_points[c],   mask=dose_mask))
+                self.apertures.append(aper_gen_given_dose(aper_proj_dict,self.data, self.data.control_points[c],   mask=dose_mask)[0])
 
         self.num_apers = len(self.apertures)
 
@@ -142,7 +142,7 @@ class vmat_mip(model_base):
                 dose_mask = gen_weighted_mask(aper_proj_dict, self.data)
                 for cp in range(self.data.num_control_points):
                     self.apertures_per_cp[cp].append(
-                        aper_gen_given_dose(aper_proj_dict, self.data, self.data.control_points[cp], mask=dose_mask))
+                        aper_gen_given_dose(aper_proj_dict, self.data, self.data.control_points[cp], mask=dose_mask)[0])
 
 
 

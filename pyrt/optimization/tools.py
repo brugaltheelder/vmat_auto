@@ -71,7 +71,7 @@ def aper_gen_given_dose(dose_per_struct, data, CP, mask=None):
 
     value, beamlets = pricing_problem_beam_aper(CP, beamlet_usefulness)
 
-    return aperture(data, CP, beamlet_override=beamlets)
+    return aperture(data, CP, beamlet_override=beamlets),beamlet_usefulness
 
 
 
