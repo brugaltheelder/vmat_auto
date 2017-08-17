@@ -41,13 +41,18 @@ def gen_weighted_mask(dose_per_struct, data):
     target_mask = [np.ones(data.structures[s].num_vox) * dose_per_struct['default'] for s in
                    range(len(data.structures))]
     for s in range(len(data.structures)):
-
         if data.structures[s].name in dose_per_struct.keys():
             factor = 1.
             if data.structures[s].is_target:
                 factor = -1.
 
             target_mask[s] = factor * dose_per_struct[data.structures[s].name] * np.ones(data.structures[s].num_vox) / \
+                             data.structures[s].num_vox
+        elif data.structures[s].is_target:
+            target_mask[s] = -1. * target_mask[s]* np.ones(data.structures[s].num_vox) / \
+                             data.structures[s].num_vox
+        else:
+            target_mask[s] = 1. * target_mask[s] * np.ones(data.structures[s].num_vox) / \
                              data.structures[s].num_vox
     return target_mask
 
@@ -69,8 +74,6 @@ def aper_gen_given_dose(dose_per_struct, data, CP, mask=None):
     return aperture(data, CP, beamlet_override=beamlets)
 
 
-def gen_aper_from_back_proj(CP, weighting_dict):
-    pass
 
 
 def pricing_problem_beam_aper(CP, beamlet_gradient, threshold=0.):
@@ -107,8 +110,8 @@ class aperture(object):
         self.cp_number = CP.cp_number
         self.org_cp_number = CP.org_cp_number
         self.num_rows = CP.num_rows
-        if set_open_aper:
 
+        if set_open_aper:
             self.left_leaf_position = [CP.left_leaf_position[r] for r in range(CP.num_rows)]
             self.right_leaf_position = [CP.left_leaf_position[r] + CP.width_per_row[r] for r in range(CP.num_rows)]
             self.intensity = 1.
@@ -122,7 +125,7 @@ class aperture(object):
             self.intensity = aper_intensity
 
 
-        #
+
         # elif beamlet_override is not None and False:
         #
         #
