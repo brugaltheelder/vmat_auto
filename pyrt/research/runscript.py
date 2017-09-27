@@ -5,7 +5,12 @@ from pyrt.research.run_functions import *
 # Find work directory
 # cwd = '/Users/troy/Dropbox/CAP Group/TROTS/Prostate_VMAT/'
 working_directory = 'outputs_josh/'
-cwd = '/Users/jtmargo/Desktop/Josh/Clemson University/Research/Treatment Plan/TROTS Data/Prostate_VMAT/'
+# path1 = '/Users/jtmargo/Desktop/Josh/Clemson University/Research/Treatment Plan/TROTS Data/Prostate_VMAT/'
+path2 = '/Users/jtmargo/Desktop/Josh/Clemson University/Research/Treatment Plan/TROTS Data/Head-and-Neck/'
+
+
+cwd = path2
+
 
 back_proj_list_of_dicts = [
    {'PTV':30.,'Bladder':15.,'default':0., 'threshold':0.},
@@ -22,7 +27,7 @@ vmat_model_params = {
     'min_intensity': 1.,
     'aper_limit': 1.,
     'max_distance_per_cp': 100,
-    'cp_redundancy': 4,
+    'cp_redundancy': 1,
     'back_projection_dicts':back_proj_list_of_dicts
 }
 
@@ -32,7 +37,8 @@ input_dict = {
     'figure_directory':working_directory,
     'aper_types_list': ['back_proj'],
     'filename': None,
-    'Rx': {'PTV': 79.56, 'PTV Vesicles': 72.2},
+    'Rx': {'PTV 0-46 Gy': 47.15},
+    # 'Rx': {'PTV': 79.56, 'PTV Vesicles': 72.2},
     'model_params':vmat_model_params
 }
 
@@ -40,7 +46,7 @@ input_dict = {
 #Run individual case
 
 # Load patient information
-input_dict['filename'] = 'Prostate_VMAT_102.mat'
+input_dict['filename'] = 'Head-and-Neck_01.mat'
 input_dict['case_directory'] = input_dict['filename'][0:-4]+'/'
 
 
