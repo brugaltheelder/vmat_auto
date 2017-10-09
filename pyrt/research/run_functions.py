@@ -7,9 +7,14 @@ def run_all(case,input_dict):
     print_in_box('Running All Cases')
 
     if case == 'Prostate_VMAT':
-        skip_files = [304,305]
+        skip_files = [210,304,305]
     else:
         skip_files = []
+
+    if case == "Head-and-Neck" :
+        skip_files = [01,02,04,06,07]
+    else:
+        skip_files=[]
 
     for filename in os.listdir(input_dict['cwd']):
 
