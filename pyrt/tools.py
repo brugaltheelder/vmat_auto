@@ -3,7 +3,10 @@ import seaborn as sns
 import numpy as np
 import os
 
+
 __author__ = 'troy'
+
+
 
 
 def print_in_box(string_input, indent_amount = 0):
@@ -21,6 +24,8 @@ def print_structure_info(data):
         print '-'*20
 
 def plot_DVH(model, saveName='', showPlots=False, saveDVH=False, run_tag=None,num_bins = 500,specific_directory = None):
+    color_array = ['b', 'lime','aqua','steelblue','darkolivegreen','blueviolet','g', 'r', 'm','y','c','k','crimson','chocolate','sandybrown','magenta','pink','yellow','']
+    plot_prostate_structures = ['PTV', 'Rectum','Anus', 'Hip (L)', 'Hip (R)', 'Bladder']
     if run_tag is not None:
         dose_per_struct = [np.copy(model.dose_dict[run_tag][s]) for s in range(len(model.data.structures))]
         run_label = run_tag
@@ -29,11 +34,15 @@ def plot_DVH(model, saveName='', showPlots=False, saveDVH=False, run_tag=None,nu
         run_label='current'
 
 
-    for s in range(len(model.data.structures)):
+    # for structure_name in plot_prostate_structures:
+    #     if structure_name in model.data.structures:
 
-        hist, bins = np.histogram(dose_per_struct[s], bins=num_bins)
-        dvh = 1. - np.cumsum(hist) / float(model.data.structures[s].num_vox)
-        plt.plot(bins[:-1], dvh, label=model.data.structures[s].name, linewidth=2)
+
+    for s in range(len(model.data.structures)):
+        if model.data.structures[s].name in plot_prostate_structures:
+            hist, bins = np.histogram(dose_per_struct[s], bins=num_bins)
+            dvh = 1. - np.cumsum(hist) / float(model.data.structures[s].num_vox)
+            plt.plot(bins[:-1], dvh, label=model.data.structures[s].name, color = color_array[s], linewidth=2)
     lgd = plt.legend(fancybox=True, framealpha=0.5, bbox_to_anchor=(1.05, 1), loc=2)
 
     plt.title('DVH for run tag: {}'.format(run_tag))

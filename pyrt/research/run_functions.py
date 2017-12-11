@@ -8,13 +8,11 @@ def run_all(case,input_dict):
 
     if case == 'Prostate_VMAT':
         skip_files = [210,304,305]
+    elif case == 'Head-and-Neck' :
+        skip_files = [01,02,04,06,07]
     else:
         skip_files = []
 
-    if case == "Head-and-Neck" :
-        skip_files = [01,02,04,06,07]
-    else:
-        skip_files=[]
 
     for filename in os.listdir(input_dict['cwd']):
 
@@ -23,14 +21,15 @@ def run_all(case,input_dict):
 
         if case in filename:
             if int(filename[-7:-4]) not in skip_files:
-                continue
-            # build input dictionary for a particular case
-            input_dict['filename'] = filename
+                # continue
+                # build input dictionary for a particular case
+                input_dict['filename'] = filename
+                input_dict['case_directory'] = input_dict['filename'][0:-4] + '/'
 
-            # call run_case(input)
+                # call run_case(input)
 
-            run_case(input_dict)
-            print '-' * 40
+                run_case(input_dict)
+                print '-' * 40
     print_in_box('All Cases Completed')
 
 
