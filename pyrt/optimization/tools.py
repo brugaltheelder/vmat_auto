@@ -1,6 +1,7 @@
 import numpy as np
 from pyrt.data.tools import control_point_vmat
-from pyrt.data.data_trots import patient_data
+from pyrt.data.data_trots import trots_patient_data
+from pyrt.data.data_utsw import utsw_patient_data
 from pyrt.tools import *
 
 
@@ -106,7 +107,7 @@ class aperture(object):
         ### aper shape details
         assert (isinstance(CP, control_point_vmat))
 
-        assert (isinstance(data, patient_data))
+        assert (isinstance(data, trots_patient_data))
         self.cp_number = CP.cp_number
         self.org_cp_number = CP.org_cp_number
         self.num_rows = CP.num_rows
@@ -184,7 +185,7 @@ class aperture(object):
 
     def build_Dkj(self, CP, data):
         assert (isinstance(CP, control_point_vmat))
-        assert (isinstance(data, patient_data))
+        assert (isinstance(data, trots_patient_data))
 
         self.Dkj_per_structure = [np.zeros(s.num_vox) for s in data.structures]
         self.beamlet_members = []

@@ -7,15 +7,15 @@ from pyrt.research.run_functions import *
 
 
 
-data_file = 'UTSW'
-# data_file = 'TROTS'
+data_file_tag = 'UTSW'
+# data_file_tag = 'TROTS'
 
-if data_file = 'TROTS':
+if data_file_tag == 'TROTS':
     working_directory = 'outputs_josh/'
     path1 = '/Users/jtmargo/Desktop/Josh/Clemson University/Research/Treatment Plan/TROTS Data/Prostate_VMAT/'
     path2 = '/Users/jtmargo/Desktop/Josh/Clemson University/Research/Treatment Plan/TROTS Data/Head-and-Neck/'
 
-
+    #Define Path
     cwd = path1
 
     if cwd == path1:
@@ -38,7 +38,7 @@ if data_file = 'TROTS':
         }
 
         input_dict = {
-            'data_file': 'TROTS'
+            'data_file_tag': data_file_tag,
             'cwd': cwd,
             'figure_directory':working_directory,
             'aper_types_list': ['open'],
@@ -68,24 +68,24 @@ if data_file = 'TROTS':
         }
 
         input_dict = {
-            'data_file': 'TROTS'
+            'data_file_tag': data_file_tag,
             'cwd': cwd,
-            'figure_directory':working_directory,
+            'figure_directory': working_directory,
             'aper_types_list': ['back_proj'],
             'filename': None,
             'Rx': {'PTV':47.15,'PTV 0-46 Gy': 47.15},
             'model_params':vmat_model_params,
-            'case_directory': None,
+            'case_directory': None
         }
 
 
     #Run individual case
 
     # Load patient information
-    input_dict['filename'] = 'Prostate_VMAT_206.mat'
+    input_dict['filename'] = 'Prostate_VMAT_310.mat'
     # input_dict['filename'] = 'Head-and-Neck_05.mat'
     # input_dict['filename'] = 'HN01_FullVMAT.mat'
-    input_dict['case_directory'] = input_dict['filename'][0:-4]+'openfield/'
+    input_dict['case_directory'] = input_dict['filename'][0:-4]+'_openfield/'
 
 
     run_case(input_dict)
@@ -93,10 +93,11 @@ if data_file = 'TROTS':
     # run_all('Prostate_VMAT',input_dict)
 
 
-if data_file = 'UTSW':
-    path_to_beam_directory = '/Users/jtmargo/Desktop/Josh/Clemson University/Research/Treatment Plan/UTSW Data/00001/Beam1/'
+if data_file_tag == 'UTSW':
+    beam_num = 1
     path_to_case_directory = '/Users/jtmargo/Desktop/Josh/Clemson University/Research/Treatment Plan/UTSW Data/00001/'
-    path_to_dij = '/Users/jtmargo/Desktop/Josh/Clemson University/Research/Treatment Plan/UTSW Data/00001/Beam1/dij/'
+    path_to_beam_directory = path_to_case_directory + 'Beam' + str(beam_num) +'/'
+    path_to_dij = path_to_beam_directory + 'dij/'
     working_directory = 'outputs_josh/'
 
     back_proj_list_of_dicts = [
@@ -124,13 +125,16 @@ if data_file = 'UTSW':
     }
 
     input_dict = {
-        'data_file': 'UTSW'
+        'data_file_tag': data_file_tag,
+        'path_to_beam_directory': path_to_beam_directory,
         'cwd': path_to_case_directory,
-        'path_to_dij' = path_to_dij
+        'path_to_dij': path_to_dij,
         'figure_directory': working_directory,
         'aper_types_list': ['back_proj'],
-        'filename': None,
-        'Rx': {'PTV5400': 47.15'PTV6000': 47.15, 'PTV7000': 47.15},
+        'filename': path_to_case_directory,
+        'Rx': {'PTV5400': 47.15, 'PTV6000': 47.15, 'PTV7000': 47.15},
         'model_params': vmat_model_params,
-        'case_directory': None,
+        'case_directory': path_to_case_directory
     }
+
+    run_case(input_dict)

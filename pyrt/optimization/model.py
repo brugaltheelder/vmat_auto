@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 import scipy.optimize as spo
 
 from pyrt.data.data_trots import *
+from pyrt.data.data_utsw import *
 from pyrt.tools import plot_DVH, print_in_box
 
 
@@ -21,7 +22,13 @@ class model_base(object):
         self.obj_dict = {}
 
     def read_in_data(self,input_dict, modality):
-        self.data = patient_data(input_dict, modality)
+        if input_dict['data_file_tag'] == 'TROTS':
+            self.data = trots_patient_data(input_dict, modality)
+        else:
+            self.data = utsw_patient_data(input_dict, modality)
+            quit()
+
+
 
     def build_model(self):
         print 'Implement in child classes'

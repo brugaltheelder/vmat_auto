@@ -5,7 +5,7 @@ import h5py
 from pyrt.data.tools import *
 
 
-class patient_data(object):
+class trots_patient_data(object):
     def __init__(self, input_dict, modality):
         self.input_dict = input_dict.copy()
         self.f = h5py.File(self.input_dict['cwd'] + self.input_dict['filename'], 'r')
@@ -18,7 +18,7 @@ class patient_data(object):
 
         self.cp_redundancy = self.input_dict['model_params']['cp_redundancy']
 
-        self.data_file =  self.input_dict['data_file']
+        self.data_file_tag =  self.input_dict['data_file_tag']
 
         print 'Building Structures'
         self.structures = []
@@ -86,6 +86,6 @@ class patient_data(object):
                 A_ref = data_matrix['A'][s]
 
                 self.structures.append(structure(name=name,index=structure_index[name],  f=self.f, Rx=Rx, num_vox=structure_sizes[name],
-                                                 num_beamlets=self.num_beamlets, is_target=is_target, data_file=self.data_file, A_ref=A_ref))
+                                                 num_beamlets=self.num_beamlets, data_file_tag=self.data_file_tag, is_target=is_target, A_ref=A_ref))
 
 

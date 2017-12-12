@@ -35,17 +35,25 @@ def run_all(case,input_dict):
 
 def run_case(input_dict):
 
-    print_in_box('Now Running {}'.format(input_dict['filename'][0:-4]),1)
-    # build model object
-    model = vmat_mip(input_dict)
+    if input_dict['data_file_tag'] == 'TROTS':
 
-    # do stuff (optimize)
-    model.optimize(run_tag=input_dict['filename'][0:-4])
+        print_in_box('Now Running {}'.format(input_dict['filename'][0:-4]),1)
+        # build model object
+        model = vmat_mip(input_dict)
 
-    # print out DVH
-    model.plot_DVH(run_tag=input_dict['filename'][0:-4], saveDVH=True, num_bins=500, specific_directory =model.data.input_dict['case_directory'])
+        # do stuff (optimize)
+        model.optimize(run_tag=input_dict['filename'][0:-4])
 
-    #Print out aperture shapes
-    plot_all_selected_apertures(model)
+        # print out DVH
+        model.plot_DVH(run_tag=input_dict['filename'][0:-4], saveDVH=True, num_bins=500, specific_directory =model.data.input_dict['case_directory'])
 
-    print_in_box('Finished Running {}'.format(input_dict['filename'][0:-4]),1)
+        #Print out aperture shapes
+        plot_all_selected_apertures(model)
+
+        print_in_box('Finished Running {}'.format(input_dict['filename'][0:-4]),1)
+
+    else:
+        print_in_box('Now Running {}'.format(input_dict['filename']))
+
+        # build model object
+        model = vmat_mip(input_dict)
