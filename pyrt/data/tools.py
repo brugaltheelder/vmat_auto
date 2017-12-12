@@ -42,30 +42,37 @@ def find_min_max_row_imrt(data):
 
 
 class structure(object):
-    def __init__(self, name,index,  A_ref, f, Rx, num_vox, num_beamlets, is_target=False):
+
+    def __init__(self, name,index,  f, Rx, num_vox, num_beamlets, is_target=False, data_file, A_ref=None):
         self.name = name
         self.index = index
         self.rx = Rx
         self.num_vox = num_vox
         self.Dij = None
         self.num_beamlets = num_beamlets
+        self.data_file = data_file
         self.is_target = is_target
-        self.import_dose(A_ref, f)
+        self.import_dose(f, A_ref)
 
-    def import_dose(self, A_ref, f):
-        if np.asarray(f[A_ref[0]]).shape == (3,):
-            print 'importing {} Dij as sparse matrix'.format(self.name)
-            indices = np.asarray(f[A_ref[0]]['jc'])
-            indptr = np.asarray(f[A_ref[0]]['ir'])
-            data = np.asarray(f[A_ref[0]]['data'])
-            # sanity check
-            if self.num_beamlets != indices.size - 1:
-                print 'ERROR IN DIMENSION MISMATCH' * 40
+    def import_dose(self, f, A_ref=None ):
+        if data_file = 'TROTS':
+            if np.asarray(f[A_ref[0]]).shape == (3,):
+                print 'importing {} Dij as sparse matrix'.format(self.name)
+                indices = np.asarray(f[A_ref[0]]['jc'])
+                indptr = np.asarray(f[A_ref[0]]['ir'])
+                data = np.asarray(f[A_ref[0]]['data'])
+                # sanity check
+                if self.num_beamlets != indices.size - 1:
+                    print 'ERROR IN DIMENSION MISMATCH' * 40
 
-            self.Dij = sps.csr_matrix((data, indptr, indices), shape=(self.num_beamlets, self.num_vox))
-        else:
-            print 'importing {} Dij as dense matrix, converting to sparse...'.format(self.name)
-            self.Dij = sps.csr_matrix(np.asarray(f[A_ref[0]]))
+                self.Dij = sps.csr_matrix((data, indptr, indices), shape=(self.num_beamlets, self.num_vox))
+            else:
+                print 'importing {} Dij as dense matrix, converting to sparse...'.format(self.name)
+                self.Dij = sps.csr_matrix(np.asarray(f[A_ref[0]]))
+
+        if data_file = "UTSW":
+            self.Dij = csr_matrix((,))
+
 
 
 class control_point_vmat(object):

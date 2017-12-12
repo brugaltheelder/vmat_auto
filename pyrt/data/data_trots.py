@@ -18,6 +18,8 @@ class patient_data(object):
 
         self.cp_redundancy = self.input_dict['model_params']['cp_redundancy']
 
+        self.data_file =  self.input_dict['data_file']
+
         print 'Building Structures'
         self.structures = []
         self.build_structures()
@@ -83,7 +85,7 @@ class patient_data(object):
 
                 A_ref = data_matrix['A'][s]
 
-                self.structures.append(structure(name=name,index=structure_index[name], A_ref=A_ref, f=self.f, Rx=Rx, num_vox=structure_sizes[name],
-                                                 num_beamlets=self.num_beamlets, is_target=is_target))
+                self.structures.append(structure(name=name,index=structure_index[name],  f=self.f, Rx=Rx, num_vox=structure_sizes[name],
+                                                 num_beamlets=self.num_beamlets, is_target=is_target, data_file=self.data_file, A_ref=A_ref))
 
 

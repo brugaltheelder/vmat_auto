@@ -38,6 +38,7 @@ if data_file = 'TROTS':
         }
 
         input_dict = {
+            'data_file': 'TROTS'
             'cwd': cwd,
             'figure_directory':working_directory,
             'aper_types_list': ['open'],
@@ -67,6 +68,7 @@ if data_file = 'TROTS':
         }
 
         input_dict = {
+            'data_file': 'TROTS'
             'cwd': cwd,
             'figure_directory':working_directory,
             'aper_types_list': ['back_proj'],
@@ -122,6 +124,7 @@ if data_file = 'UTSW':
     }
 
     input_dict = {
+        'data_file': 'UTSW'
         'cwd': path_to_case_directory,
         'path_to_dij' = path_to_dij
         'figure_directory': working_directory,
