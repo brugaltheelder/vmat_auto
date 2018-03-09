@@ -43,21 +43,24 @@ def find_min_max_row_imrt(data):
 
 class structure(object):
 
-    def __init__(self, name,index,  f, Rx, num_vox, num_beamlets, data_file_tag, is_target=False,  A_ref=None):
+    def __init__(self, name,index,  f, Rx, num_vox, num_beamlets, data_file_tag, is_target=False,  A_ref=None, Dij_aux=None):
         self.name = name
         self.index = index
         self.rx = Rx
         self.num_vox = num_vox
-        self.Dij = None
         self.num_beamlets = num_beamlets
         self.is_target = is_target
 
         if data_file_tag == 'TROTS':
-            self.import_dose(f, A_ref)
+            self.Dij = None
+            self.import_dose_trots(f, A_ref)
+        elif data_file_tag == 'UTSW':
+            self.Dij = Dij_aux
+    #        self.import_dose_utsw()
         else:
             pass
 
-    def import_dose(self, f, A_ref=None ):
+    def import_dose_trots(self, f, A_ref=None ):
             if np.asarray(f[A_ref[0]]).shape == (3,):
                 print 'importing {} Dij as sparse matrix'.format(self.name)
                 indices = np.asarray(f[A_ref[0]]['jc'])
@@ -71,6 +74,11 @@ class structure(object):
             else:
                 print 'importing {} Dij as dense matrix, converting to sparse...'.format(self.name)
                 self.Dij = sps.csr_matrix(np.asarray(f[A_ref[0]]))
+
+    #def import_dose_utsw(self):
+     #   self.Dij
+
+
 
 
 class control_point_vmat(object):

@@ -85,6 +85,8 @@ class trots_patient_data(object):
 
                 A_ref = data_matrix['A'][s]
 
+                print name, structure_index[name], Rx, structure_sizes[name]
+
                 self.structures.append(structure(name=name,index=structure_index[name],  f=self.f, Rx=Rx, num_vox=structure_sizes[name],
                                                  num_beamlets=self.num_beamlets, data_file_tag=self.data_file_tag, is_target=is_target, A_ref=A_ref))
 

@@ -8,7 +8,7 @@ from pyrt.research.run_functions import *
 
 
 data_file_tag = 'UTSW'
-# data_file_tag = 'TROTS'
+#data_file_tag = 'TROTS'
 
 if data_file_tag == 'TROTS':
     working_directory = 'outputs_josh/'
