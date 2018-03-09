@@ -136,7 +136,7 @@ class utsw_patient_data(object):
         # print vox_vector.shape
         return (dij_vector, bix_vector, vox_vector, nbix, nvox)
 
-    def generate_control_point_data(self, modality, cp_redundancy=1 ):
+   # def generate_control_point_data(self, modality, cp_redundancy=1 ):
 
 
     def build_structures(self):
