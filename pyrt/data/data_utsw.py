@@ -136,7 +136,21 @@ class utsw_patient_data(object):
         # print vox_vector.shape
         return (dij_vector, bix_vector, vox_vector, nbix, nvox)
 
-   # def generate_control_point_data(self, modality, cp_redundancy=1 ):
+    def generate_control_point_data(self, modality, cp_redundancy=1):
+        if modality=='imrt':
+            pass
+        elif modality=='vmat' or modality=='conf_arc':
+            min_row, max_row = 0., self.beamlet_y
+            self.num_control_points = self.num_control_points * cp_redundancy
+            for c in range(self.num_control_points):
+                current_cp =  int(c/cp_redundancy)
+                # build metadata read in field
+                self.control_points.append(control_point_vmat(c, current_cp, field, min_row, max_row,
+                                                              self.cumulative_beamlets_per_cp[current_cp],
+                                                              self.beamlets_per_cp[current_cp], modality))
+
+        else:
+            print 'improper modality: {}'.format(modality)
 
 
     def build_structures(self):
