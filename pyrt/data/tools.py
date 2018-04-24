@@ -83,7 +83,7 @@ class structure(object):
 
 class control_point_vmat(object):
 
-    def __init__(self, cp_number, org_cp_number, field, min_row, max_row, initial_beamlet_index, number_beamlets, modality):
+    def __init__(self, cp_number, org_cp_number, min_row, max_row, initial_beamlet_index, number_beamlets, modality, field=None):
         self.cp_number = cp_number
         self.org_cp_number = org_cp_number
         self.min_row = min_row

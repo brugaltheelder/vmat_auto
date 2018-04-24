@@ -146,9 +146,10 @@ class utsw_patient_data(object):
                 current_cp =  int(c/cp_redundancy)
                 # build metadata read in field
                 self.control_points.append(control_point_vmat(c, current_cp, field, min_row, max_row,
-                                                              self.cumulative_beamlets_per_cp[current_cp],
-                                                              self.beamlets_per_cp[current_cp], modality))
-
+                                                               self.cumulative_beamlets_per_cp[current_cp],
+                                                               self.beamlets_per_cp[current_cp], modality))
+            pass
+                
         else:
             print 'improper modality: {}'.format(modality)
 

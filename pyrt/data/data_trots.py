@@ -49,8 +49,8 @@ class trots_patient_data(object):
                 # build metadata read in field
                 b = self.f['patient/Beams/BeamConfig']
                 field = np.asarray(self.f[b['Field'][current_cp][0]])
-                self.control_points.append(control_point_vmat(c,current_cp, field, min_row, max_row, self.cumulative_beamlets_per_cp[current_cp],
-                                                              self.beamlets_per_cp[current_cp],modality))
+                self.control_points.append(control_point_vmat(c,current_cp, min_row, max_row, self.cumulative_beamlets_per_cp[current_cp],
+                                                              self.beamlets_per_cp[current_cp],modality, field))
         else:
             print 'improper modality: {}'.format(modality)
 
@@ -85,7 +85,7 @@ class trots_patient_data(object):
 
                 A_ref = data_matrix['A'][s]
 
-                print name, structure_index[name], Rx, structure_sizes[name]
+                #print name, structure_index[name], Rx, structure_sizes[name]
 
                 self.structures.append(structure(name=name,index=structure_index[name],  f=self.f, Rx=Rx, num_vox=structure_sizes[name],
                                                  num_beamlets=self.num_beamlets, data_file_tag=self.data_file_tag, is_target=is_target, A_ref=A_ref))
